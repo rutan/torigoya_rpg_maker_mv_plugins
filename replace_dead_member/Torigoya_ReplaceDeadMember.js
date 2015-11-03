@@ -32,6 +32,7 @@
     var swapDeadMember = function () {
         var allMembers = $gameParty.allMembers();
         for (var i = 0; i < $gameParty.maxBattleMembers(); ++i) {
+            if (!allMembers[i]) break;
             if (!allMembers[i].isDead()) continue;
 
             for (var j = $gameParty.maxBattleMembers(); j < allMembers.length; ++j) {
