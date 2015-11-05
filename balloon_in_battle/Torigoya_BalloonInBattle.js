@@ -304,7 +304,7 @@
      */
     Game_BattlerBase.prototype.torigoya_pickSpeech = function (type, id, name) {
         if (id === undefined) {
-            id = '0';
+            id = 0;
         }
         if (name === undefined) {
             name = '';
@@ -312,8 +312,13 @@
 
         var battler = (this.actor || this.enemy).apply(this);
         var key = 'Speech/' + type;
-        var patternString = battler.meta[key + '[' + id + ']'] || battler.meta[key];
-        if (patternString) {
+        var patternString =
+            battler.meta[key + '[' + id + ']'] ||
+            (Number(id) < 0 ? battler.meta[key + '[-]'] : false) ||
+            battler.meta[key];
+        if (patternString === true) { // セリフ空欄の場合
+            return '';
+        } else if (patternString) {
             var array = splitMessage(patternString);
             if (array.length > 0) {
                 return array[Math.randomInt(array.length)].replace('\\1', name);
@@ -403,7 +408,9 @@
         upstream_Window_BattleLog_displayActionResults.apply(this, [subject, target]);
         if (target.result().used && target.result().hpAffected && subject !== target && target.canMove()) {
             if (target.result().hpDamage < 0 || target.result().mpDamage < 0 || target.result().tpDamage < 0) {
-                target.torigoya_setSpeech(target.torigoya_pickSpeech('Recovery'));
+                var subjectID = subject.isActor() ? subject.actorId() : subject.enemyId();
+                if (subject.isEnemy()) { subjectID *= -1; }
+                target.torigoya_setSpeech(target.torigoya_pickSpeech('Recovery', subjectID, subject.name()));
             }
         }
     };
