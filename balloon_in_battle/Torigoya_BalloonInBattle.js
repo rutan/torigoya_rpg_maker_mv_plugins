@@ -54,10 +54,16 @@
  *   <Speech/Reflection: Reflection from enemy Message>
  *   <Speech/Dead: Dying Message>
  *
+ *   <Speech/Recovery: Repairing by friend Message>
+ *   <Speech/Recovery[1]: Repairing by friend ID.1 Message>
+ *
+ *   <Speech/RecoveryByRival: Repairing by rival Message>
+ *   <Speech/RecoveryByRival[1]: Repairing by rival ID.1 Message>
+ *
  *   <Speech/Start: when Battle Start Message>
  *   <Speech/Start[1]: when Battle Start Message with Troop ID.1>
  *
- *   <Speech/Victory: when Winning Messsage>
+ *   <Speech/Victory: when Winning Message>
  *   <Speech/Victory[1]: when Winning Message with Troop ID.1>
  */
 
@@ -109,9 +115,11 @@
  * ＜設定できる項目＞
  *   <Speech/Skill: スキルを使ったときのメッセージ>
  *   <Speech/Skill[1]: スキル1番を使ったときのメッセージ>
+ *       \1 と書くとその部分がスキル名に置き換わります
  *
  *   <Speech/Item: アイテムを使ったときのメッセージ>
  *   <Speech/Item[1]: アイテム1番を使ったときのメッセージ>
+ *       \1 と書くとその部分がスキル名に置き換わります
  *
  *   <Speech/Damage: ダメージを受けたときのメッセージ>
  *   <Speech/Miss: 敵のダメージがミスのときのメッセージ>
@@ -120,6 +128,16 @@
  *   <Speech/Counter: 敵の攻撃をカウンターしたときのメッセージ>
  *   <Speech/Reflection: 敵の攻撃を反射したときのメッセージ>
  *   <Speech/Dead: 戦闘不能になったときのメッセージ>
+ *
+ *   <Speech/Recovery: 仲間に回復してもらったときのメッセージ>
+ *   <Speech/Recovery[1]: 仲間ID: 1番に回復してもらったときのメッセージ>
+ *       \1 と書くとその部分が回復してくれた人の名前に置き換わります。
+ *       仲間IDは「アクターの場合：アクターID」、「敵キャラの場合：敵キャラID」になります。
+ *
+ *   <Speech/RecoveryByRival: 対戦相手に回復してもらったときのメッセージ>
+ *   <Speech/RecoveryByRival[1]: 対戦相手ID: 1番に回復してもらったときのメッセージ>
+ *       \1 と書くとその部分が回復してくれた人の名前に置き換わります
+ *       対戦相手IDは「アクターの場合：敵キャラID」、「敵キャラの場合：アクターID」になります。
  *
  *   <Speech/Start: 戦闘が始まったときのメッセージ>
  *   <Speech/Start[1]: トループ1番との戦闘が始まったときのメッセージ>
@@ -409,8 +427,11 @@
         if (target.result().used && target.result().hpAffected && subject !== target && target.canMove()) {
             if (target.result().hpDamage < 0 || target.result().mpDamage < 0 || target.result().tpDamage < 0) {
                 var subjectID = subject.isActor() ? subject.actorId() : subject.enemyId();
-                if (subject.isEnemy()) { subjectID *= -1; }
-                target.torigoya_setSpeech(target.torigoya_pickSpeech('Recovery', subjectID, subject.name()));
+                if (subject.isEnemy() === target.isEnemy()) { // 味方同士 or 敵同士
+                    target.torigoya_setSpeech(target.torigoya_pickSpeech('Recovery', subjectID, subject.name()));
+                } else {
+                    target.torigoya_setSpeech(target.torigoya_pickSpeech('RecoveryByRival', subjectID, subject.name()));
+                }
             }
         }
     };
