@@ -65,6 +65,10 @@
  *
  *   <Speech/Victory: when Winning Message>
  *   <Speech/Victory[1]: when Winning Message with Troop ID.1>
+ *
+ *   <SpeechBalloon/X: balloon position>
+ *   <SpeechBalloon/Y: balloon position>
+ *
  */
 
 /*:ja
@@ -144,6 +148,11 @@
  *
  *   <Speech/Victory: 戦闘勝利時のメッセージ>
  *   <Speech/Victory[1]: トループ1番との戦闘勝利時のメッセージ>
+ *
+ *   <SpeechBalloon/X: 吹き出し表示位置のX座標>
+ *   <SpeechBalloon/Y: 吹き出し表示位置のY座標>
+ *       キャラクターのサイズによって吹き出しの位置が都合悪い場合は、
+ *       アクター/エネミーごとに微調整できます。
  */
 
 (function (global) {
@@ -278,8 +287,11 @@
      * @param spriteBattler
      */
     Window_Balloon.prototype.track = function (spriteBattler) {
-        this.x = spriteBattler.x - (this._width / 2);
-        this.y = spriteBattler.y - (spriteBattler.torigoya_getBattleHeight() + this._height);
+        var actorOrEnemy = spriteBattler._battler ? (spriteBattler._battler.actor || spriteBattler._battler.enemy).apply(spriteBattler._battler) : null;
+        this.x = spriteBattler.x - (this._width / 2) +
+            (actorOrEnemy ? (~~actorOrEnemy.meta['SpeechBalloon/X']) : 0);
+        this.y = spriteBattler.y - (spriteBattler.torigoya_getBattleHeight() + this._height) +
+            (actorOrEnemy ? (~~actorOrEnemy.meta['SpeechBalloon/Y']) : 0);
     };
 
     // -------------------------------------------------------------------------
