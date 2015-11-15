@@ -46,7 +46,9 @@
     SceneManager._screenHeight = SceneManager._boxHeight = h;
     if (Utils.isNwjs()) {
         var guiWindow = require('nw.gui').Window.get();
-        guiWindow.width = w * r;
-        guiWindow.height = h * r;
+        var borderWidth = window.outerWidth - window.innerWidth;
+        var borderHeight = window.outerHeight - window.innerHeight;
+        guiWindow.resizeTo(w * r + borderWidth, h * r + borderHeight);
+        guiWindow.show();
     }
 })();
