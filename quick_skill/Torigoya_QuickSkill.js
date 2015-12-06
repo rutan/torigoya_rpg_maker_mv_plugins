@@ -66,13 +66,19 @@
             this._subject = QuickSkill.originalSubject;
             this.changeActor(this._actorIndex, 'undecided');
             QuickSkill.currentActionActor = null;
-            if (!this.checkBattleEnd()) {
+            if (QuickSkill.isBattleEnd()) {
+                this._phase = 'turn';
+            } else {
                 this._phase = 'input';
             }
         } else {
             upstream_BattleManager_endAction.bind(this)();
         }
     };
+
+    QuickSkill.isBattleEnd = function () {
+        return $gameParty.isEmpty() || $gameParty.isAllDead() || $gameTroop.isAllDead();
+    }
 
     global.Torigoya = (global.Torigoya || {});
     global.Torigoya.QuickSkill = QuickSkill;
