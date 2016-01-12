@@ -14,10 +14,17 @@
  * @desc input prompt message
  * @default Please, input name.
  *
+ * @param Maximum Message
+ * @desc maximum number of characters message (default: (%1 characters or less) )
+ * %1 - max length value
+ * @default (%1 characters or less)
+ *
  * @help
  *
  * Plugin Command:
- *   InputNamePrompt 1     # display input name prompt of Actor ID: 1
+ *   InputNamePrompt 1      # display input name prompt of Actor ID: 1
+ *   InputNamePrompt 1 100  # display input name prompt of Actor ID: 1 (max length: 100)
+ *   InputNamePrompt 1 100 Please, input your name.  # display input name prompt with custom message
  */
 
 /*:ja
@@ -32,39 +39,64 @@
  * @desc 入力時に表示するメッセージ (default: 名前を入力してください)
  * @default 名前を入力してください
  *
+ * @param Maximum Message
+ * @desc 最大文字数の表示 (default: (%1 文字以内) )
+ * %1 - 上限文字数値
+ * @default (%1 文字以内で入力)
+ *
  * @help
  *
  * プラグインコマンド:
- *   InputNamePrompt 1     # アクター1番の名前入力ダイアログを表示する
+ *   InputNamePrompt 1      # アクター1番の名前入力ダイアログを表示する
+ *   InputNamePrompt 1 100  # アクター1番の名前入力ダイアログを表示する (最大 100 文字)
+ *   InputNamePrompt 1 100 名前を入力するのじゃ  # メッセージの変更
  */
 
-(function () {
-    var settings = PluginManager.parameters('Torigoya_InputNamePrompt');
-    var maxLength = Number(settings['Max Length'] || 10);
-    var message = String(settings['Message']);
+(function (global) {
+    'use strict';
 
-    var getMessage = function () {
-        if (message.length > 0) return message;
-        if ($gameSystem && $gameSystem.isJapanese()) {
-            return '名前を入力してください';
-        } else {
-            return 'Please, input name.';
+    var PLUGIN_NAME = 'Torigoya_InputNamePrompt';
+    var settings = (function () {
+        var parameters = PluginManager.parameters(PLUGIN_NAME);
+        return {
+            maxLength: Number(parameters['Max Length'] || 10),
+            message: String(parameters['Message']),
+            maximumMessage: String(parameters['Maximum Message']),
+            getMessage: function () {
+                return this.message || ($gameSystem && $gameSystem.isJapanese() ? '名前を入力してください' : 'Please, input name.');
+            },
+            getMaximumMessage: function () {
+                return this.maximumMessage || ($gameSystem && $gameSystem.isJapanese() ? '(%1 文字以内で入力)' : '(%1 characters or less)');
+            }
+        };
+    })();
+
+    var runCommand = function (args) {
+        var actor = $gameActors.actor(~~args.shift());
+        var max = Math.max(~~args.shift(), settings.maxLength);
+        var message = args.join(' ') || settings.getMessage();
+        message += '\n' + settings.getMaximumMessage().replace(/%1/g, '' + max);
+        var name = window.prompt(message, actor.name());
+        if (name) {
+            name = name.trim();
+            if (name.length > 0) {
+                actor.setName(name.substr(0, max));
+            }
         }
     };
 
     var upstream_Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function (command, args) {
         if (command === 'InputNamePrompt') {
-            var actor = $gameActors.actor(~~args[0]);
-            var name = window.prompt(getMessage(), actor.name());
-            if (name) {
-                name = name.trim();
-                if (name.length > 0) {
-                    actor.setName(name.substr(0, maxLength));
-                }
-            }
-            return;
+            return runCommand(args);
         }
         upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
     };
-})();
+
+    global.Torigoya = (global.Torigoya || {});
+    global.Torigoya.InputNamePrompt = {
+        name: PLUGIN_NAME,
+        settings: settings,
+        command: runCommand
+    };
+})(this);
