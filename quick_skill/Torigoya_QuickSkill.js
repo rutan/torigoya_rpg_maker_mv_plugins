@@ -71,6 +71,11 @@
             } else {
                 this._phase = 'input';
             }
+
+            // 戦闘中セリフ表示さん for MV連動
+            if (Torigoya.BalloonInBattle && Torigoya.BalloonInBattle.clearSpeechOfAllMember) {
+                Torigoya.BalloonInBattle.clearSpeechOfAllMember();
+            }
         } else {
             upstream_BattleManager_endAction.bind(this)();
         }

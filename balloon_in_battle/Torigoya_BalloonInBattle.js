@@ -554,6 +554,7 @@
     global.Torigoya = (global.Torigoya || {});
     global.Torigoya.BalloonInBattle = {
         settings: settings,
-        Window_Balloon: Window_Balloon
+        Window_Balloon: Window_Balloon,
+        clearSpeechOfAllMember: clearSpeechOfAllMember
     };
 })(this);
