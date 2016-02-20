@@ -31,7 +31,11 @@
     // ターン消費なしスキル中はActionを減らさないようにしないと死ぬ
     Game_Battler.prototype.removeCurrentAction = function () {
         if (QuickSkill.currentActionActor) {
+            console.log('removeCurrentAction');
             this._actions[0] = new Game_Action(this);
+            this._actions.sort(function (a, _) {
+                return a._item.isNull() ? 1 : 0;
+            });
         } else {
             this._actions.shift();
         }
