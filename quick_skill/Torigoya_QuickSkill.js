@@ -23,6 +23,8 @@
  */
 
 (function (global) {
+    'use strict';
+
     var QuickSkill = {
         currentActionActor: null,
         originalSubject: null
@@ -53,6 +55,7 @@
                     QuickSkill.originalSubject = BattleManager._subject;
                     BattleManager._subject = BattleManager.actor();
                     BattleManager.processTurn();
+                    $gameTroop._interpreter.setupReservedCommonEvent();
                     return;
                 }
             }
@@ -69,11 +72,7 @@
             this._subject = QuickSkill.originalSubject;
             this.changeActor(this._actorIndex, 'undecided');
             QuickSkill.currentActionActor = null;
-            if (QuickSkill.isBattleEnd()) {
-                this._phase = 'turn';
-            } else {
-                this._phase = 'input';
-            }
+            this._phase = 'torigoya_quickSkill';
 
             // 戦闘中セリフ表示さん for MV連動
             if (Torigoya.BalloonInBattle && Torigoya.BalloonInBattle.clearSpeechOfAllMember) {
@@ -84,9 +83,23 @@
         }
     };
 
+    // ターン消費なしスキル中にイベントが積まれたら実行する
+    var upstream_BattleManager_updateEvent = BattleManager.updateEvent;
+    BattleManager.updateEvent = function () {
+        switch (this._phase) {
+            case 'torigoya_quickSkill':
+                if (this.updateEventMain()) {
+                    return true;
+                }
+                this._phase = QuickSkill.isBattleEnd() ? 'turn' : 'input';
+                break;
+        }
+        return upstream_BattleManager_updateEvent.apply(this);
+    };
+
     QuickSkill.isBattleEnd = function () {
         return $gameParty.isEmpty() || $gameParty.isAllDead() || $gameTroop.isAllDead();
-    }
+    };
 
     global.Torigoya = (global.Torigoya || {});
     global.Torigoya.QuickSkill = QuickSkill;
