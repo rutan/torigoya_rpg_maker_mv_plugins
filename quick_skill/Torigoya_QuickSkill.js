@@ -61,25 +61,20 @@
             }
             QuickSkill.currentActionActor = null;
         }
-        upstream_Scene_Battle_selectNextCommand.bind(this)();
+        upstream_Scene_Battle_selectNextCommand.apply(this);
     };
 
     // ターン消費なしスキル中なら後片付け
     var upstream_BattleManager_endAction = BattleManager.endAction;
     BattleManager.endAction = function () {
+        upstream_BattleManager_endAction.apply(this);
+
+        // 後始末
         if (QuickSkill.currentActionActor) {
-            this._logWindow.endAction(this._subject);
             this._subject = QuickSkill.originalSubject;
             this.changeActor(this._actorIndex, 'undecided');
             QuickSkill.currentActionActor = null;
             this._phase = 'torigoya_quickSkill';
-
-            // 戦闘中セリフ表示さん for MV連動
-            if (Torigoya.BalloonInBattle && Torigoya.BalloonInBattle.clearSpeechOfAllMember) {
-                Torigoya.BalloonInBattle.clearSpeechOfAllMember();
-            }
-        } else {
-            upstream_BattleManager_endAction.bind(this)();
         }
     };
 
