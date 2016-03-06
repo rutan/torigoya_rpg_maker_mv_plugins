@@ -63,7 +63,7 @@
         var parameters = PluginManager.parameters(OneButtonSkill.name);
         return {
             keyName: String(parameters['Key Name'] || 'shift'),
-            hideSkill: Boolean(parameters['Hide One Button Skill'] || 'false')
+            hideSkill: (String(parameters['Hide One Button Skill']) === 'true')
         };
     })();
 

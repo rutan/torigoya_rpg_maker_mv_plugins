@@ -12,5 +12,5 @@ skill note
 ```
 
 ## Video
-TODO
+https://www.youtube.com/watch?v=qdzvm4ima3w
 
