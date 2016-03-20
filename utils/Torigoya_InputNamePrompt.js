@@ -71,11 +71,16 @@
         };
     })();
 
-    var runCommand = function (args) {
+    var InputNamePrompt = {
+        name: PLUGIN_NAME,
+        settings: settings
+    };
+
+    InputNamePrompt.runCommand = function (args) {
         var actor = $gameActors.actor(~~args.shift());
-        var max = Math.max(~~args.shift(), settings.maxLength);
-        var message = args.join(' ') || settings.getMessage();
-        message += '\n' + settings.getMaximumMessage().replace(/%1/g, '' + max);
+        var max = Math.max(~~args.shift(), InputNamePrompt.settings.maxLength);
+        var message = args.join(' ') || InputNamePrompt.settings.getMessage();
+        message += '\n' + InputNamePrompt.settings.getMaximumMessage().replace(/%1/g, '' + max);
         var name = window.prompt(message, actor.name());
         if (name) {
             name = name.trim();
@@ -85,18 +90,22 @@
         }
     };
 
+    InputNamePrompt.afterCommand = function () {
+        // キー入力状態が固定化されているので一旦初期化する
+        Input.clear();
+        TouchInput.clear();
+    };
+
     var upstream_Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function (command, args) {
         if (command === 'InputNamePrompt') {
-            return runCommand(args);
+            InputNamePrompt.runCommand(args);
+            InputNamePrompt.afterCommand();
+            return true;
         }
-        upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
+        return upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
     };
 
     global.Torigoya = (global.Torigoya || {});
-    global.Torigoya.InputNamePrompt = {
-        name: PLUGIN_NAME,
-        settings: settings,
-        command: runCommand
-    };
+    global.Torigoya.InputNamePrompt = InputNamePrompt;
 })(this);
