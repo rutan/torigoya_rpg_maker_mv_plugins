@@ -54,6 +54,11 @@
  *   <Speech/Reflection: Reflection from enemy Message>
  *   <Speech/Dead: Dying Message>
  *
+ *   <Speech/Substitute: Substitute Message>
+ *   <Speech/Substitute[1]: Substitute for ID.1>
+ *   <Speech/Protected: Substituted Message>
+ *   <Speech/Protected[1]: Substituted Message by ID.1>
+ *
  *   <Speech/Recovery: Repairing by friend Message>
  *   <Speech/Recovery[1]: Repairing by friend ID.1 Message>
  *
@@ -132,6 +137,13 @@
  *   <Speech/Counter: 敵の攻撃をカウンターしたときのメッセージ>
  *   <Speech/Reflection: 敵の攻撃を反射したときのメッセージ>
  *   <Speech/Dead: 戦闘不能になったときのメッセージ>
+ *
+ *   <Speech/Substitute: 仲間の身代わりになったときのメッセージ>
+ *   <Speech/Substitute[1]: 仲間ID: 1番の身代わりになったときのメッセージ>
+ *   <Speech/Protected: 仲間が自分の身代りになったときのメッセージ>
+ *   <Speech/Protected[1]: 仲間ID: 1番が自分の身代わりになったときのメッセージ>
+ *       \1 と書くとその部分が相手の名前に置き換わります。
+ *       仲間IDは「アクターの場合：アクターID」、「敵キャラの場合：敵キャラID」になります。
  *
  *   <Speech/Recovery: 仲間に回復してもらったときのメッセージ>
  *   <Speech/Recovery[1]: 仲間ID: 1番に回復してもらったときのメッセージ>
@@ -312,6 +324,14 @@
     };
 
     /**
+     * メッセージ表示中か取得
+     * @returns {Boolean}
+     */
+    Game_BattlerBase.prototype.torigoya_hasSpeech = function () {
+        return !!this._torigoya_speech;
+    };
+
+    /**
      * メッセージ内容の取得
      * @returns {null|*}
      */
@@ -448,13 +468,26 @@
         }
     };
 
+    // 身代わり
+    var upstream_BattleManager_applySubstitute = BattleManager.applySubstitute;
+    BattleManager.applySubstitute = function (target) {
+        var realTarget = upstream_BattleManager_applySubstitute.apply(this, arguments);
+        if (target !== realTarget) {
+            var targetID = target.isActor() ? target.actorId() : target.enemyId();
+            var realTargetID = realTarget.isActor() ? realTarget.actorId() : realTarget.enemyId();
+            realTarget.torigoya_setSpeech(realTarget.torigoya_pickSpeech('Substitute', targetID, target.name()));
+            target.torigoya_setSpeech(target.torigoya_pickSpeech('Protected', realTargetID, realTarget.name()));
+        }
+        return realTarget;
+    };
+
     // 相手の情報とかいらない系は↓の方法で
 
     // 被ダメージ時
     var upstream_Game_Battler_performDamage = Game_Battler.prototype.performDamage;
     Game_Battler.prototype.performDamage = function () {
         upstream_Game_Battler_performDamage.apply(this);
-        if (this.canMove()) {
+        if (this.canMove() && !this.torigoya_hasSpeech()) {
             this.torigoya_setSpeech(this.torigoya_pickSpeech('Damage'));
         }
     };
