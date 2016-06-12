@@ -52,8 +52,13 @@
         } else if (str.match(/^\d+$/)) {
             slotId = ~~str;
         } else {
-            if (str === 'last') {
-                slotId = DataManager.lastAccessedSavefileId();
+            switch (str) {
+                case 'last':
+                    slotId = DataManager.lastAccessedSavefileId();
+                    break;
+                case 'latest':
+                    slotId = DataManager.latestSavefileId();
+                    break;
             }
         }
 
