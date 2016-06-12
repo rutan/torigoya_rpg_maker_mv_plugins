@@ -80,6 +80,8 @@
 
     // 無理やり感ある
     SaveCommand.runCommandLoad = function (gameInterpreter, slotId) {
+        if (!DataManager.isThisGameFile(slotId)) return;
+
         var scene = SceneManager._scene;
         scene.fadeOutAll();
         DataManager.loadGame(slotId);
