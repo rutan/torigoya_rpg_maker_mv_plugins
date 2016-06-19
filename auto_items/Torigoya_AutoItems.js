@@ -253,7 +253,7 @@
         if (DataManager.isSkill(item)) {
             subject.canUse(item);
             if (subject.isActor()) {
-                return subject.canUse(item) && subject.isLearnedSkill(item);
+                return subject.canUse(item) && subject.isLearnedSkill(item.id);
             } else {
                 return subject.canUse(item);
             }
