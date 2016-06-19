@@ -11,6 +11,9 @@
  * @param Balloon Window Image
  * @desc Image of Balloon Window (default: Window)
  * @default Window
+ * @require 1
+ * @dir img/system/
+ * @type file
  *
  * @param --- Advanced ---
  *
@@ -85,6 +88,9 @@
  * @param Balloon Window Image
  * @desc 吹き出しに使用するウィンドウ画像のファイル名 (default: Window)
  * @default Window
+ * @require 1
+ * @dir img/system/
+ * @type file
  *
  * @param --- 上級者設定 ---
  *
