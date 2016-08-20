@@ -78,7 +78,8 @@
 
     InputNamePrompt.runCommand = function (args) {
         var actor = $gameActors.actor(~~args.shift());
-        var max = Math.max(~~args.shift(), InputNamePrompt.settings.maxLength);
+        var max = Number(args.shift());
+        if (isNaN(max)) max = InputNamePrompt.settings.maxLength;
         var message = args.join(' ') || InputNamePrompt.settings.getMessage();
         message += '\n' + InputNamePrompt.settings.getMaximumMessage().replace(/%1/g, '' + max);
         var name = window.prompt(message, actor.name());
