@@ -659,16 +659,6 @@
         }
     };
 
-    /**
-     * 行動開始処理。オートアイテム処理が始まっていなければ初期化する。
-     */
-    AutoItems.startAction = function () {
-        if (AutoItems.manager.phase === 'none') {
-            AutoItems.manager.reset();
-            AutoItems.manager.phase = 'record';
-        }
-    };
-
     // -------------------------------------------------------------------------
     // 独自定義
 
@@ -687,7 +677,7 @@
     };
 
     /**
-     * ルールセットの取得
+     * [Actor] ルールセットの取得
      * @returns {Array.<AutoItem_Rule>}
      */
     Game_Actor.prototype.torigoya_autoItemsSettings = function () {
@@ -705,7 +695,7 @@
     };
 
     /**
-     * ルールセットの取得
+     * [Enemy] ルールセットの取得
      * @returns {Array.<AutoItem_Rule>}
      */
     Game_Enemy.prototype.torigoya_autoItemsSettings = function () {
@@ -749,16 +739,17 @@
         upstream_BattleManager_startAction.apply(this);
     };
 
-    var upstream_BattleManager_invokeAction = BattleManager.invokeAction;
-    BattleManager.invokeAction = function (subject, target) {
-        upstream_BattleManager_invokeAction.apply(this, arguments);
-        AutoItems.recordAction(subject, target);
-    };
-
     var upstream_BattleManager_endAction = BattleManager.endAction;
     BattleManager.endAction = function () {
         upstream_BattleManager_endAction.apply(this);
         AutoItems.endAction();
+    };
+
+    // BattleManager.invokeActionのタイミングだと、かばうでtargetが変わる可能性があるので×
+    var upstream_Window_BattleLog_displayActionResults= Window_BattleLog.prototype.displayActionResults;
+    Window_BattleLog.prototype.displayActionResults = function(subject, target) {
+        upstream_Window_BattleLog_displayActionResults.apply(this, arguments);
+        AutoItems.recordAction(subject, target);
     };
 
     // -------------------------------------------------------------------------
