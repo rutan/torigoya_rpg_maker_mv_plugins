@@ -202,15 +202,15 @@
     };
 
     /**
-     * 生存メンバーからランダムに1人選択
+     * 生存 && 行動可能メンバーからランダムに1人選択
      * @returns {*}
      */
     var choiseAliveMember = function () {
         var members = $gameParty.battleMembers().filter(function (actor) {
-            return actor.isAlive();
+            return actor.isAlive() && actor.canMove();
         });
-        return members[Math.randomInt(members.length)];
-    }
+        return members.length > 0 ? members[Math.randomInt(members.length)] : null;
+    };
 
     /**
      * 全メンバーのセリフを削除
@@ -222,7 +222,7 @@
         $gameTroop.members().forEach(function (enemy) {
             enemy.torigoya_clearSpeech();
         });
-    }
+    };
 
     // -------------------------------------------------------------------------
     // 吹き出しウィンドウ
