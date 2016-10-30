@@ -174,6 +174,8 @@
  */
 
 (function (global) {
+    "use strict";
+
     var settings = PluginManager.parameters('Torigoya_BalloonInBattle');
     settings['Balloon Window Image'] = String(settings['Balloon Window Image'] || 'Window');
     settings['Balloon Padding'] = Number(settings['Balloon Padding'] || 8);
@@ -205,7 +207,7 @@
      * 生存 && 行動可能メンバーからランダムに1人選択
      * @returns {*}
      */
-    var choiseAliveMember = function () {
+    var choiceAliveMember = function () {
         var members = $gameParty.battleMembers().filter(function (actor) {
             return actor.isAlive() && actor.canMove();
         });
@@ -559,7 +561,7 @@
         upstream_BattleManager_startBattle.apply(this);
 
         // 味方
-        var member = choiseAliveMember();
+        var member = choiceAliveMember();
         if (member) {
             member.torigoya_setSpeech(member.torigoya_pickSpeech('Start', $gameTroop._troopId));
         }
@@ -582,12 +584,58 @@
     // 戦闘終了時
     var upstream_BattleManager_processVictory = BattleManager.processVictory;
     BattleManager.processVictory = function () {
-        var member = choiseAliveMember();
+        var member = choiceAliveMember();
         if (member) {
             member.torigoya_setSpeech(member.torigoya_pickSpeech('Victory', $gameTroop._troopId));
         }
         upstream_BattleManager_processVictory.apply(this);
     };
+
+    // -------------------------------------------------------------------------
+
+    var upstream_Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+    Game_Interpreter.prototype.pluginCommand = function (command, args) {
+        if (!$gameParty.inBattle()) return;
+
+        switch (command) {
+            case 'BalloonBattle':
+            case '戦闘中吹き出し':
+            {
+                var target = parseTargetFromString((args[0] || '').trim());
+                var name = (args[1] || '').trim();
+                var id = parseIdFromString((args[2] || '').trim());
+                if (target) target.torigoya_setSpeech(target.torigoya_pickSpeech(name, id));
+                break;
+            }
+            case 'BalloonBattle:OFF':
+            case '戦闘中吹き出し:OFF':
+            {
+                var target = parseTargetFromString((args[0] || '').trim());
+                if (target) target.torigoya_clearSpeech();
+                break;
+            }
+        }
+        upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
+    };
+
+    function parseTargetFromString(str) {
+        var targetId = parseInt(str);
+        if (targetId < 0) {
+            var members = $gameTroop.members();
+            return members[targetId];
+        } else if (targetId > 0) {
+            var members = $gameParty.battleMembers();
+            for (var i = 0; i < members.length; ++i) {
+                if (members[i].actorId() === targetId) return members[i];
+            }
+        }
+        return null;
+    }
+
+    function parseIdFromString(str) {
+        var id = parseInt(str);
+        return isNaN(id) ? null : id;
+    }
 
     // -------------------------------------------------------------------------
     global.Torigoya = (global.Torigoya || {});
