@@ -98,7 +98,9 @@
 
     SaveCommand.runCommandSave = function (_, slotId) {
         $gameSystem.onBeforeSave();
-        DataManager.saveGame(slotId);
+        if (DataManager.saveGame(slotId)) {
+            StorageManager.cleanBackup(slotId);
+        }
     };
 
     SaveCommand.runCommandRemove = function (_, slotId) {
