@@ -226,6 +226,10 @@
         });
     };
 
+    // 戦闘終了フラグ
+    // ※YEP_VictoryAftermath等との互換のため
+    var isBattleFinished = false;
+
     // -------------------------------------------------------------------------
     // 吹き出しウィンドウ
     // -------------------------------------------------------------------------
@@ -557,6 +561,7 @@
     // 戦闘開始時
     var upstream_BattleManager_startBattle = BattleManager.startBattle;
     BattleManager.startBattle = function () {
+        isBattleFinished = false;
         clearSpeechOfAllMember();
         upstream_BattleManager_startBattle.apply(this);
 
@@ -584,9 +589,12 @@
     // 戦闘終了時
     var upstream_BattleManager_processVictory = BattleManager.processVictory;
     BattleManager.processVictory = function () {
-        var member = choiceAliveMember();
-        if (member) {
-            member.torigoya_setSpeech(member.torigoya_pickSpeech('Victory', $gameTroop._troopId));
+        if (!isBattleFinished) {
+            isBattleFinished = true;
+            var member = choiceAliveMember();
+            if (member) {
+                member.torigoya_setSpeech(member.torigoya_pickSpeech('Victory', $gameTroop._troopId));
+            }
         }
         upstream_BattleManager_processVictory.apply(this);
     };
