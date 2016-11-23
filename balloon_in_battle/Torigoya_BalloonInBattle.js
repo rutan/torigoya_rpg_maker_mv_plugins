@@ -187,6 +187,13 @@
     settings['Balloon Line Height'] = Number(settings['Balloon Line Height'] || 20);
 
     /**
+     * 競合プラグインのチェック
+     */
+    var conflictPlugins = {
+        YanflyBattleCore: (global.Yanfly && global.Yanfly.BEC)
+    };
+
+    /**
      * オレオレCSVの読み取り
      * @param str
      * @returns {Array}
@@ -226,6 +233,18 @@
         });
         $gameTroop.members().forEach(function (enemy) {
             enemy.torigoya_clearSpeech();
+        });
+    };
+
+    /**
+     * 全メンバーのセリフをちょっと待ってから削除
+     */
+    var delayClearSpeechOfAllMember = function (wait) {
+        $gameParty.allMembers().forEach(function (actor) {
+            actor.torigoya_delayClearSpeech(wait);
+        });
+        $gameTroop.members().forEach(function (enemy) {
+            enemy.torigoya_delayClearSpeech(wait);
         });
     };
 
@@ -336,6 +355,7 @@
      */
     Game_BattlerBase.prototype.torigoya_setSpeech = function (message) {
         this._torigoya_speech = message;
+        this._torigoya_speechUniqueID = Math.random();
     };
 
     /**
@@ -359,6 +379,21 @@
      */
     Game_BattlerBase.prototype.torigoya_clearSpeech = function () {
         this._torigoya_speech = null;
+        this._torigoya_speechUniqueID = null;
+    };
+
+    /**
+     * ちょっと待ってからメッセージの消去
+     */
+    Game_BattlerBase.prototype.torigoya_delayClearSpeech = function (wait) {
+        var id = this._torigoya_speechUniqueID;
+        if (!id) return;
+
+        setTimeout(function () {
+            if (id === this._torigoya_speechUniqueID) {
+                this.torigoya_clearSpeech();
+            }
+        }.bind(this), wait);
     };
 
     /**
@@ -429,10 +464,21 @@
     // -------------------------------------------------------------------------
     // Battlerの持つ吹き出しをSpritesetに追加
     // -------------------------------------------------------------------------
+
+    // 競合対応
+    var maybeOriginal_battlerSprites = (function () {
+        if (conflictPlugins.YanflyBattleCore) {
+            // アクターのspriteが返ってこなくなるので元の関数を使う
+            return global.Yanfly.BEC.Spriteset_Battle_battlerSprites;
+        } else {
+            return Spriteset_Battle.prototype.battlerSprites;
+        }
+    })();
+
     var upstream_Spriteset_Battle_createLowerLayer = Spriteset_Battle.prototype.createLowerLayer;
     Spriteset_Battle.prototype.createLowerLayer = function () {
         upstream_Spriteset_Battle_createLowerLayer.apply(this);
-        this.battlerSprites().forEach((function (battlerSprite) {
+        maybeOriginal_battlerSprites.apply(this).forEach((function (battlerSprite) {
             this.addChild(battlerSprite.torigoya_balloonWindow);
         }).bind(this));
     };
@@ -585,7 +631,11 @@
     // 行動選択時（吹き出し削除）
     var upstream_BattleManager_startInput = BattleManager.startInput;
     BattleManager.startInput = function () {
-        clearSpeechOfAllMember();
+        if (conflictPlugins.YanflyBattleCore) {
+            delayClearSpeechOfAllMember(2500);
+        } else {
+            clearSpeechOfAllMember();
+        }
         upstream_BattleManager_startInput.apply(this);
     };
 
@@ -610,8 +660,7 @@
 
         switch (command) {
             case 'BalloonBattle':
-            case '戦闘中吹き出し':
-            {
+            case '戦闘中吹き出し': {
                 var target = parseTargetFromString((args[0] || '').trim());
                 var name = (args[1] || '').trim();
                 var id = parseIdFromString((args[2] || '').trim());
@@ -619,8 +668,7 @@
                 break;
             }
             case 'BalloonBattle:OFF':
-            case '戦闘中吹き出し:OFF':
-            {
+            case '戦闘中吹き出し:OFF': {
                 var target = parseTargetFromString((args[0] || '').trim());
                 if (target) target.torigoya_clearSpeech();
                 break;
