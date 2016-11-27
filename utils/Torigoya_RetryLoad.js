@@ -3,7 +3,7 @@
 //=============================================================================
 
 /*:
- * @plugindesc Retry load on error Audio, and Image.
+ * @plugindesc [Deprecated] Retry load on error Audio, and Image.
  * @author ru_shalm
  *
  * @param Retry Max
@@ -20,8 +20,11 @@
  */
 
 /*:ja
- * @plugindesc 音声や画像の読み込み失敗時にリトライします
+ * @plugindesc 【非推奨】音声や画像の読み込み失敗時にリトライします
  * @author ru_shalm
+ * @help
+ *   このプラグインは非推奨です。
+ *   後継バージョンの Torigoya_RetryLoadPlus.js をご利用ください。
  *
  * @param Retry Max
  * @desc リトライする最大回数 (default: 3)
