@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2016/12/26 ru_shalm
+ * 2016/12/27 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -78,6 +78,17 @@
  * @help
  *   実績・トロフィー的なシステムを定義します。
  *   実績の項目はコモンイベントに記述することで追加できます。
+ *
+ *   使用方法の詳細はブログをご確認ください。
+ *   http://torigoya.hatenadiary.jp/entry/achievement_mv
+ *
+ *   ＜プラグインコマンド＞
+ *
+ *   実績 1
+ *   　… 実績ID:1番を解除します
+ *
+ *   実績表示
+ *   　… 実績画面を表示します
  */
 
 (function (global) {
@@ -594,6 +605,10 @@
             case '実績':
                 var achievementID = ~~Number(args[0]);
                 AchievementManager.unlock(achievementID);
+                return;
+            case 'ShowAchievement':
+            case '実績表示':
+                SceneManager.push(Scene_Achievement);
                 return;
         }
         upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
