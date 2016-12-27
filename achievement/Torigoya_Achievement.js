@@ -31,6 +31,11 @@
  * left: 左上  right: 右上
  * @default left
  *
+ * @param Popup Width
+ * @desc ポップアップ表示の横幅(px)
+ * 最低200以上で設定してください
+ * @default 250
+ *
  * @param Popup Message
  * @desc 獲得時に表示するメッセージ
  * @default 実績を獲得しました
@@ -104,6 +109,7 @@
             storageKey: String(parameters['Storage Key'] || 'Achievement-Game'),
             usePopup: String(parameters['Use Popup'] || 'ON') === 'ON',
             popupPosition: String(parameters['Popup Position'] || 'left'),
+            popupWidth: Number(parameters['Popup Width'] || 250),
             popupMessage: String(parameters['Popup Message'] || '実績を獲得しました'),
             popupSound: String(parameters['Popup Sound'] || ''),
             listHiddenTitle: String(parameters['List Hidden Title'] || '？？？？？'),
@@ -341,7 +347,9 @@
                     this._stacks = this._stacks.filter(function (stack) {
                         return window !== stack;
                     });
-                    window.parent.removeChild(window);
+                    if (window.parent) {
+                        window.parent.removeChild(window);
+                    }
                 }.bind(this))
                 .start();
 
@@ -377,9 +385,13 @@
     Window_AchievementPopup.prototype.constructor = Window_AchievementPopup;
 
     Window_AchievementPopup.prototype.initialize = function (item) {
-        Window_Base.prototype.initialize.call(this, 0, 0, 250, 50);
+        Window_Base.prototype.initialize.call(this, 0, 0, this.windowWidth(), 50);
         this.item = item;
         this.refresh();
+    };
+
+    Window_AchievementPopup.prototype.windowWidth = function () {
+        return Achievement.settings.popupWidth;
     };
 
     Window_AchievementPopup.prototype.standardFontSize = function () {
@@ -406,9 +418,10 @@
     };
 
     Window_AchievementPopup.prototype.drawMessage = function () {
+        var textWidth = this.windowWidth() - 60;
         this.contents.textColor = '#ffffff';
         this.contents.fontSize = 12;
-        this.contents.drawText(Achievement.settings.popupMessage, 50, 29, 190, 12, 'left');
+        this.contents.drawText(Achievement.settings.popupMessage, 50, 29, textWidth, 12, 'left');
     };
 
     Achievement.Window_AchievementPopup = Window_AchievementPopup;
