@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2016/12/27 ru_shalm
+ * 2016/12/28 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -35,6 +35,11 @@
  * @desc ポップアップ表示の横幅(px)
  * 最低200以上で設定してください
  * @default 250
+ *
+ * @param Popup Wait
+ * @desc ポップアップの表示時間(秒)
+ * （フェードイン/アウトの時間は含みません）
+ * @default 0.75
  *
  * @param Popup Message
  * @desc 獲得時に表示するメッセージ
@@ -112,6 +117,7 @@
             popupWidth: Number(parameters['Popup Width'] || 250),
             popupMessage: String(parameters['Popup Message'] || '実績を獲得しました'),
             popupSound: String(parameters['Popup Sound'] || ''),
+            popupWait: Number(parameters['Popup Wait'] || 0.75),
             listHiddenTitle: String(parameters['List Hidden Title'] || '？？？？？'),
             listHiddenDescription: String(parameters['List Hidden Description'] || ''),
             listHiddenIcon: Number(parameters['List Hidden Icon'] || 0),
@@ -336,7 +342,7 @@
                     backOpacity: 255,
                     contentsOpacity: 255
                 }, 30, Torigoya.Tween.Easing.easeOutCircular)
-                .wait(45)
+                .wait(Math.floor(Achievement.settings.popupWait * 60))
                 .to({
                     y: y - window.height,
                     opacity: 0,
