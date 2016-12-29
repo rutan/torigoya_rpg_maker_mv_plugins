@@ -457,6 +457,7 @@
     };
 
     Window_AchievementList.prototype.refresh = function () {
+        this.contents.clear();
         this.drawAllItems();
     };
 
