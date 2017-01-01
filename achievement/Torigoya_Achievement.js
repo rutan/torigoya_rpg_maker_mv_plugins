@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2016/12/29 ru_shalm
+ * 2017/01/02 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -425,7 +425,7 @@
 
     Window_AchievementPopup.prototype.drawMessage = function () {
         var textWidth = this.windowWidth() - 60;
-        this.contents.textColor = '#ffffff';
+        this.resetTextColor();
         this.contents.fontSize = 12;
         this.contents.drawText(Achievement.settings.popupMessage, 50, 29, textWidth, 12, 'left');
     };
