@@ -74,6 +74,7 @@
 
         // 後始末
         if (QuickSkill.currentActionActor) {
+            this._phase = 'torigoya_quickSkill';
             this._subject = QuickSkill.originalSubject;
             if (this.actor() && this.actor().canInput()) {
                 this.changeActor(this._actorIndex, 'undecided');
@@ -81,7 +82,6 @@
                 this.selectNextCommand();
             }
             QuickSkill.currentActionActor = null;
-            this._phase = 'torigoya_quickSkill';
         }
     };
 
