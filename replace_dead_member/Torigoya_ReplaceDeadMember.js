@@ -1,6 +1,9 @@
-//=============================================================================
-// Torigoya_ReplaceDeadMember.js
-//=============================================================================
+/*---------------------------------------------------------------------------*
+ * Torigoya_ReplaceDeadMember.js
+ *---------------------------------------------------------------------------*
+ * 2017/01/21 ru_shalm
+ * http://torigoya.hatenadiary.jp/
+ *---------------------------------------------------------------------------*/
 
 /*:
  * @plugindesc Replace a back member from dead actors in BattleScene.
@@ -13,10 +16,12 @@
  */
 
 (function (global) {
+    'use strict';
+
     // 生存メンバーが先頭に集まるように並び替え
     var sortDeadMember = function () {
         var allMembers = $gameParty.allMembers();
-        for (var i = 0; i < allMembers.length - 1; ++i) {
+        for (var i = getPartyStartIndex(); i < allMembers.length - 1; ++i) {
             if (!allMembers[i].isDead()) continue;
 
             for (var j = i + 1; j < allMembers.length; ++j) {
@@ -31,7 +36,7 @@
     // 死んだ戦闘参加中メンバーを控えと入れ替え
     var swapDeadMember = function () {
         var allMembers = $gameParty.allMembers();
-        for (var i = 0; i < $gameParty.maxBattleMembers(); ++i) {
+        for (var i = getPartyStartIndex(); i < $gameParty.maxBattleMembers(); ++i) {
             if (!allMembers[i]) break;
             if (!allMembers[i].isDead()) continue;
 
@@ -41,6 +46,16 @@
                 allMembers = $gameParty.allMembers(); // 取り直す
                 break;
             }
+        }
+    };
+
+    // 入れ替え対象範囲にするアクターの位置
+    // ※先頭固定系のプラグインなどと仲良くする
+    var getPartyStartIndex = function () {
+        if (Imported.TMTopFix) { // TMTopFix.js利用時
+            return $gameSystem.isTopFix() ? 1 : 0;
+        } else {
+            return 0;
         }
     };
 
