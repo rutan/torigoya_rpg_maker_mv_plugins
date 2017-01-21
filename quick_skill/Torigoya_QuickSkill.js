@@ -1,6 +1,9 @@
-//=============================================================================
-// Torigoya_QuickSkill.js
-//=============================================================================
+/*---------------------------------------------------------------------------*
+ * Torigoya_QuickSkill.js
+ *---------------------------------------------------------------------------*
+ * 2017/01/21 ru_shalm
+ * http://torigoya.hatenadiary.jp/
+ *---------------------------------------------------------------------------*/
 
 /*:
  * @plugindesc usable Quick skill (select and action!)
@@ -72,7 +75,11 @@
         // 後始末
         if (QuickSkill.currentActionActor) {
             this._subject = QuickSkill.originalSubject;
-            this.changeActor(this._actorIndex, 'undecided');
+            if (this.actor() && this.actor().canInput()) {
+                this.changeActor(this._actorIndex, 'undecided');
+            } else {
+                this.selectNextCommand();
+            }
             QuickSkill.currentActionActor = null;
             this._phase = 'torigoya_quickSkill';
         }
@@ -96,6 +103,7 @@
         return $gameParty.isEmpty() || $gameParty.isAllDead() || $gameTroop.isAllDead();
     };
 
+    // -------------------------------------------------------------------------
     global.Torigoya = (global.Torigoya || {});
     global.Torigoya.QuickSkill = QuickSkill;
 })(this);
