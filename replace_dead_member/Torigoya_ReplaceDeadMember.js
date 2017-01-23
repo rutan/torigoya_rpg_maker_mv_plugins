@@ -52,7 +52,7 @@
     // 入れ替え対象範囲にするアクターの位置
     // ※先頭固定系のプラグインなどと仲良くする
     var getPartyStartIndex = function () {
-        if (Imported.TMTopFix) { // TMTopFix.js利用時
+        if (global.Imported && global.Imported.TMTopFix) { // TMTopFix.js利用時
             return $gameSystem.isTopFix() ? 1 : 0;
         } else {
             return 0;
