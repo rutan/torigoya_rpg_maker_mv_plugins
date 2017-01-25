@@ -165,7 +165,7 @@
                 // 入れ替え後アクター
                 var changedActor = allMembers[i];
                 changedActor.onBattleStart();
-                changedActor.torigoya__replaceDeadMember__prevActorId = allMembers[j].actorId();
+                changedActor.torigoya__replaceDeadMember__prevActor = allMembers[j];
 
                 break;
             }
@@ -288,19 +288,22 @@
     var upstream_Sprite_Actor_setBattler = Sprite_Actor.prototype.setBattler;
     Sprite_Actor.prototype.setBattler = function (battler) {
         upstream_Sprite_Actor_setBattler.apply(this, arguments);
-        if (this._actor && this._actor.torigoya__replaceDeadMember__prevActorId) {
+        if (this._actor && this._actor.torigoya__replaceDeadMember__prevActor) {
             this.moveToStartPosition();
             this.startEntryMotion();
 
             // 戦闘中吹き出し表示さん連携
             if (global.Torigoya.BalloonInBattle) {
                 var msg =
-                    this._actor.torigoya_pickSpeech('Change', this._actor.torigoya__replaceDeadMember__prevActorId)
-                    || this._actor.torigoya_pickSpeech('Start', $gameTroop._troopId);
+                    this._actor.torigoya_pickSpeech(
+                        'Change',
+                        this._actor.torigoya__replaceDeadMember__prevActor.actorId(),
+                        this._actor.torigoya__replaceDeadMember__prevActor.name()
+                    ) || this._actor.torigoya_pickSpeech('Start', $gameTroop._troopId);
                 this._actor.torigoya_setSpeech(msg);
             }
 
-            this._actor.torigoya__replaceDeadMember__prevActorId = null;
+            this._actor.torigoya__replaceDeadMember__prevActor = null;
         }
     };
 
