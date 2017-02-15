@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2016/11/23 ru_shalm
+ * 2017/02/16 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -656,22 +656,22 @@
 
     var upstream_Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function (command, args) {
-        if (!$gameParty.inBattle()) return;
-
-        switch (command) {
-            case 'BalloonBattle':
-            case '戦闘中吹き出し': {
-                var target = parseTargetFromString((args[0] || '').trim());
-                var name = (args[1] || '').trim();
-                var id = parseIdFromString((args[2] || '').trim());
-                if (target) target.torigoya_setSpeech(target.torigoya_pickSpeech(name, id));
-                break;
-            }
-            case 'BalloonBattle:OFF':
-            case '戦闘中吹き出し:OFF': {
-                var target = parseTargetFromString((args[0] || '').trim());
-                if (target) target.torigoya_clearSpeech();
-                break;
+        if ($gameParty.inBattle()) {
+            switch (command) {
+                case 'BalloonBattle':
+                case '戦闘中吹き出し': {
+                    var target = parseTargetFromString((args[0] || '').trim());
+                    var name = (args[1] || '').trim();
+                    var id = parseIdFromString((args[2] || '').trim());
+                    if (target) target.torigoya_setSpeech(target.torigoya_pickSpeech(name, id));
+                    break;
+                }
+                case 'BalloonBattle:OFF':
+                case '戦闘中吹き出し:OFF': {
+                    var target = parseTargetFromString((args[0] || '').trim());
+                    if (target) target.torigoya_clearSpeech();
+                    break;
+                }
             }
         }
         upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
