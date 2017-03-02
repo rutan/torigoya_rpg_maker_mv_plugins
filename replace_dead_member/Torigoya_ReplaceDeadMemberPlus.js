@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_ReplaceDeadMemberPlus.js
  *---------------------------------------------------------------------------*
- * 2017/01/26 ru_shalm
+ * 2017/03/03 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -77,7 +77,7 @@
      */
     ReplaceDeadMember.isEnabled = function () {
         if (ReplaceDeadMember.settings.disableSwitchID === 0) return true;
-        return $gameSwitches.value(ReplaceDeadMember.settings.disableSwitchID);
+        return !$gameSwitches.value(ReplaceDeadMember.settings.disableSwitchID);
     };
 
     /**
@@ -178,7 +178,7 @@
      * @returns {number}
      */
     ReplaceDeadMember.getPartyStartIndex = function () {
-        return ReplaceDeadMember.settings.canReplaceLeader ? 1 : 0;
+        return ReplaceDeadMember.settings.canReplaceLeader ? 0 : 1;
     };
 
     /**
