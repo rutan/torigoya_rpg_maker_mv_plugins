@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_ReplaceDeadMemberPlus.js
  *---------------------------------------------------------------------------*
- * 2017/03/03 ru_shalm
+ * 2017/03/04 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -111,7 +111,7 @@
      * @returns {boolean}
      */
     ReplaceDeadMember.isReplaceable = function () {
-        if (!ReplaceDeadMember.isEnabled) return false;
+        if (!ReplaceDeadMember.isEnabled()) return false;
 
         var deadBattleMember = false;
         var aliveBenchMember = false;
