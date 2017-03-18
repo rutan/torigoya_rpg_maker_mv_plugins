@@ -1,6 +1,9 @@
-//=============================================================================
-// Torigoya_SkillChangeTo.js
-//=============================================================================
+/*---------------------------------------------------------------------------*
+ * Torigoya_SkillChangeTo.js
+ *---------------------------------------------------------------------------*
+ * 2017/03/18 ru_shalm
+ * http://torigoya.hatenadiary.jp/
+ *---------------------------------------------------------------------------*/
 
 /*:
  * @plugindesc skill change conditional plugin
@@ -43,14 +46,17 @@
     var SkillChangeTo = {
         name: 'Torigoya_SkillChangeTo'
     };
-    var cache = {};
+    var skillCache = {};
+    var itemCache = {};
 
     /**
      * obtain ChangeTo list from item note
      * @param item
      * @returns {Array}
      */
-    SkillChangeTo.obtainChnageList = function (item) {
+    SkillChangeTo.obtainChangeList = function (item) {
+        var isSkill = item.hasOwnProperty('stypeId');
+        var cache = isSkill ? skillCache : itemCache;
         if (cache[item.id] === undefined) {
             if (item.note.indexOf('<ChangeTo[') !== -1) {
                 cache[item.id] = item.note.split(/\r?\n/).map(function (n) {
@@ -97,7 +103,7 @@
         var item = action.item();
         if (!item) return;
 
-        var ifList = SkillChangeTo.obtainChnageList(item);
+        var ifList = SkillChangeTo.obtainChangeList(item);
         for (var i = 0; i < ifList.length; ++i) {
             if (!SkillChangeTo.evalConditional(ifList[i].conditional, subject)) continue;
 
