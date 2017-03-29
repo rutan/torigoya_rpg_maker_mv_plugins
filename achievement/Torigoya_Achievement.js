@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2017/01/14 ru_shalm
+ * 2017/03/30 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -632,6 +632,10 @@
             case 'ShowAchievement':
             case '実績表示':
                 SceneManager.push(Scene_Achievement);
+                return;
+            case 'ResetAchievement':
+            case '実績リセット':
+                AchievementManager.clear();
                 return;
         }
         upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
