@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2017/01/21 (2) ru_shalm
+ * 2017/05/02 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -30,7 +30,8 @@
 
     var QuickSkill = {
         currentActionActor: null,
-        originalSubject: null
+        originalSubject: null,
+        actorIndexForForcedAction: null
     };
 
     // ターン消費なしスキル中はActionを減らさないようにしないと死ぬ
@@ -89,8 +90,19 @@
     var upstream_BattleManager_updateEvent = BattleManager.updateEvent;
     BattleManager.updateEvent = function () {
         switch (this._phase) {
+            case 'turn':
+                if (QuickSkill.actorIndexForForcedAction) {
+                    this._phase = 'torigoya_quickSkill';
+                    this._actorIndex = QuickSkill.actorIndexForForcedAction;
+                    QuickSkill.actorIndexForForcedAction = null;
+                }
+                break;
             case 'torigoya_quickSkill':
-                if (this.updateEventMain()) {
+                if (this.isActionForced()) {
+                    QuickSkill.actorIndexForForcedAction = this._actorIndex;
+                    this.processForcedAction();
+                    return true;
+                } else if (this.updateEventMain()) {
                     return true;
                 }
                 this._phase = QuickSkill.isBattleEnd() ? 'turn' : 'input';
