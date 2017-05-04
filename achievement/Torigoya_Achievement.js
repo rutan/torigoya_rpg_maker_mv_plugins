@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2017/05/04 ru_shalm
+ * 2017/05/05 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -124,7 +124,7 @@
             listHiddenTitle: String(parameters['List Hidden Title'] || '？？？？？'),
             listHiddenDescription: String(parameters['List Hidden Description'] || ''),
             listHiddenIcon: Number(parameters['List Hidden Icon'] || 0),
-            listCancel: String(parameters['List Cancel Message'] || '閉じる'),
+            listCancel: String(parameters['List Cancel Message']),
             useTitle: String(parameters['Use Title'] || 'ON') === 'ON',
             useMenu: String(parameters['Use Menu'] || 'ON') === 'ON',
             menuText: String(parameters['Menu Text'] || '実績')
@@ -484,7 +484,7 @@
                 };
             }
         });
-        this._data.push(null);
+        if (Achievement.settings.listCancel) this._data.push(null);
     };
 
     Window_AchievementList.prototype.drawItem = function (index) {
