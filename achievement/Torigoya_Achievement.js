@@ -279,6 +279,7 @@
         };
 
         AchievementManager.prototype.clear = function () {
+            this._achievements = [];
             StorageManager.save(Achievement.saveSlotID, JSON.stringify({
                 achievements: []
             }));
