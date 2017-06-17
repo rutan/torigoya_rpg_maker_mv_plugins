@@ -16,6 +16,13 @@
 /*:ja
  * @plugindesc 戦闘中、死亡したメンバーを自動的に控えメンバーに入れ替えます。
  * @author ru_shalm
+ * @help
+ * 【注意】
+ * このプラグインは旧バージョンです。
+ * 以下のページで公開されている最新バージョンをご利用ください。
+ *
+ * 戦闘不能アクター自動入れ替えさんPlus for MV
+ * http://torigoya.hatenadiary.jp/entry/replace_dead_member_plus_mv
  */
 
 (function (global) {
