@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2017/02/16 ru_shalm
+ * 2017/06/25 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -505,7 +505,7 @@
     Spriteset_Battle.prototype.createLowerLayer = function () {
         upstream_Spriteset_Battle_createLowerLayer.apply(this);
         maybeOriginal_battlerSprites.apply(this).forEach((function (battlerSprite) {
-            this.addChild(battlerSprite.torigoya_balloonWindow);
+            this._battleField.addChild(battlerSprite.torigoya_balloonWindow);
         }).bind(this));
     };
 
