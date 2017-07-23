@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2017/06/25 ru_shalm
+ * 2017/07/23 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -287,6 +287,16 @@
     };
     Window_Balloon.prototype = Object.create(Window_Base.prototype);
     Window_Balloon.prototype.constructor = Window_Balloon;
+
+    // for YEP_BattleEngineCore
+    Object.defineProperties(Window_Balloon.prototype, {
+        z: {
+            enumerable: false,
+            get: function() {
+                return 9999;
+            }
+        }
+    });
 
     Window_Balloon.prototype.standardFontSize = function () {
         return settings['Balloon Font Size'];
