@@ -75,6 +75,7 @@
         OneButtonSkill.selectSkill = null;
 
         if (!skill) return;
+        this._skillWindow.setActor(BattleManager.actor());
         var action = BattleManager.inputtingAction();
         action.setSkill(skill.id);
         BattleManager.actor().setLastBattleSkill(skill);
@@ -106,7 +107,6 @@
         var skill = OneButtonSkill.selectOneButtonSkill(this._actor);
         if (skill) {
             OneButtonSkill.selectSkill = skill;
-            this.select(0);
             this.playOkSound();
             this.updateInputData();
             this.deactivate();
