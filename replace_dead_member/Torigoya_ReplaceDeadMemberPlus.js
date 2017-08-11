@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_ReplaceDeadMemberPlus.js
  *---------------------------------------------------------------------------*
- * 2017/03/04 ru_shalm
+ * 2017/08/11 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -68,6 +68,7 @@
 
     // ソート順の記憶
     var sortOrder = null;
+    var sortOrderBattleMembers = null;
 
     // -------------------------------------------------------------------------
     // functions
@@ -96,6 +97,9 @@
         sortOrder = $gameParty.allMembers().map(function (actor) {
             return actor.actorId();
         });
+        sortOrderBattleMembers = $gameParty.battleMembers().map(function (actor) {
+            return actor.actorId();
+        });
     };
 
     /**
@@ -105,6 +109,7 @@
         if (!sortOrder || sortOrder.length === 0) return;
         $gameParty.torigoya__replaceDeadMember__restoreSort(sortOrder);
         sortOrder = null;
+        sortOrderBattleMembers = null;
     };
 
     /**
@@ -307,6 +312,85 @@
             this._actor.torigoya__replaceDeadMember__prevActor = null;
         }
     };
+
+    // -------------------------------------------------------------------------
+    // check Conflict
+
+    // for YEP_PartySystem.js
+    if (global.Yanfly && global.Yanfly.Party) {
+        var upstream_Scene_Party_terminate = Scene_Party.prototype.terminate;
+        Scene_Party.prototype.terminate = function () {
+            upstream_Scene_Party_terminate.apply(this);
+            ReplaceDeadMember.sortDeadMember();
+            if (ReplaceDeadMember.isSaveSortOrder()) ReplaceDeadMember.saveSortOrder();
+            ReplaceDeadMember.swapDeadMember();
+        };
+
+        var upstream_Game_Party_torigoya__replaceDeadMember__restoreSort = Game_Party.prototype.torigoya__replaceDeadMember__restoreSort;
+        Game_Party.prototype.torigoya__replaceDeadMember__restoreSort = function (memory) {
+            this._battleMembers.sort(function (a, b) {
+                var index1 = memory.indexOf(a);
+                var index2 = memory.indexOf(b);
+                if (index2 === -1) return -1;
+                if (index1 === -1) return 1;
+                return index1 - index2;
+            });
+            upstream_Game_Party_torigoya__replaceDeadMember__restoreSort.apply(this, arguments);
+        };
+
+        var upstream_ReplaceDeadMember_sortDeadMember = ReplaceDeadMember.sortDeadMember;
+        ReplaceDeadMember.sortDeadMember = function () {
+            upstream_ReplaceDeadMember_sortDeadMember.apply(this);
+            $gameParty._battleMembers = $gameParty._battleMembers.filter(function (id) {
+                return id > 0;
+            });
+
+            var battleMembers = $gameParty._battleMembers;
+            for (var i = ReplaceDeadMember.getPartyStartIndex(); i < battleMembers.length - 1; ++i) {
+                var actor = $gameActors.actor(battleMembers[i]);
+                if (!actor) break;
+                if (!actor.isDead()) continue;
+
+                for (var j = i + 1; j < battleMembers.length; ++j) {
+                    var actor2 = $gameActors.actor(battleMembers[j]);
+                    if (actor2.isDead()) continue;
+                    $gameParty._battleMembers[i] = actor2.actorId();
+                    $gameParty._battleMembers[j] = actor.actorId();
+                    battleMembers = $gameParty._battleMembers; // 取り直す
+                    break;
+                }
+            }
+        };
+
+        ReplaceDeadMember.swapDeadMember = function () {
+            var changed = false;
+            var battleMemberIds = $gameParty._battleMembers;
+            var allMembers = $gameParty.allMembers();
+            for (var i = ReplaceDeadMember.getPartyStartIndex(); i < $gameParty.maxBattleMembers(); ++i) {
+                var actor = $gameActors.actor(battleMemberIds[i]);
+                if (actor && !actor.isDead()) continue;
+
+                for (var j = 0; j < allMembers.length; ++j) {
+                    if (battleMemberIds.indexOf(allMembers[j].actorId()) !== -1) continue;
+                    if (allMembers[j].isDead()) continue;
+
+                    changed = true;
+                    $gameParty._battleMembers[i] = allMembers[j].actorId();
+
+                    // 入れ替え後アクター
+                    var changedActor = allMembers[j];
+                    changedActor.onBattleStart();
+                    changedActor.torigoya__replaceDeadMember__prevActor = actor;
+
+                    // 更新する
+                    battleMemberIds = $gameParty._battleMembers;
+
+                    break;
+                }
+            }
+            return changed;
+        };
+    }
 
     // -------------------------------------------------------------------------
     global.Torigoya = (global.Torigoya || {});
