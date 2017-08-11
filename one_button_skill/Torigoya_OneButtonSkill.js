@@ -1,6 +1,9 @@
-//=============================================================================
-// Torigoya_OneButtonSkill.js
-//=============================================================================
+/*---------------------------------------------------------------------------*
+ * Torigoya_OneButtonSkill.js
+ *---------------------------------------------------------------------------*
+ * 2017/08/11 ru_shalm
+ * http://torigoya.hatenadiary.jp/
+ *---------------------------------------------------------------------------*/
 
 /*:
  * @plugindesc One Button SKill for MV plugin
@@ -103,6 +106,7 @@
         var skill = OneButtonSkill.selectOneButtonSkill(this._actor);
         if (skill) {
             OneButtonSkill.selectSkill = skill;
+            this.select(0);
             this.playOkSound();
             this.updateInputData();
             this.deactivate();
