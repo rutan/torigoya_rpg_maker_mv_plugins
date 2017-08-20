@@ -7,18 +7,26 @@
  * @author ru_shalm
  *
  * @param [Key] wait
+ * @type number
+ * @min 1
  * @desc [Input.repeat] wait in first time (default: 24)
  * @default 24
  *
  * @param [Key] interval
+ * @type number
+ * @min 1
  * @desc [Input.repeat] wait of interval (default: 6)
  * @default 6
  *
  * @param [Touch] wait
+ * @type number
+ * @min 1
  * @desc [TouchInput.repeat] wait in first time (default: 24)
  * @default 24
  *
  * @param [Touch] interval
+ * @type number
+ * @min 1
  * @desc [TouchInput.repeat] wait of interval (default: 6)
  * @default 6
  */
@@ -28,18 +36,26 @@
  * @author ru_shalm
  *
  * @param [Key] wait
+ * @type number
+ * @min 1
  * @desc Input.repeatの初回のウェイト (default: 24)
  * @default 24
  *
  * @param [Key] interval
+ * @type number
+ * @min 1
  * @desc Input.repeatの2回目以降のウェイト (default: 6)
  * @default 6
  *
  * @param [Touch] wait
+ * @type number
+ * @min 1
  * @desc TouchInput.repeatの初回のウェイト (default: 24)
  * @default 24
  *
  * @param [Touch] interval
+ * @type number
+ * @min 1
  * @desc TouchInput.repeatの2回目以降のウェイト (default: 6)
  * @default 6
  */

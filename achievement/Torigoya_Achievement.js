@@ -12,36 +12,50 @@
  * @param ■ 基本
  *
  * @param Common Event ID
+ * @type common_event
  * @desc 実績の注釈を記述するコモンイベントのID
  * @default 1
  *
  * @param Storage Key
+ * @type string
  * @desc 【Web公開用】保存キー名。1つのWebサイトで複数のゲームを公開する場合は、それぞれ別の名前にしてください。
  * @default Achievement: Game
  *
  * @param ■ ポップアップ表示
  *
  * @param Use Popup
+ * @type select
+ * @option ON
+ * @option OFF
  * @desc ポップアップ表示のON/OFF
  * ON: 表示する　OFF: 表示しない　（default: ON）
  * @default ON
  *
  * @param Popup Position
+ * @type select
+ * @option left
+ * @option right
  * @desc メッセージを表示する場所
  * left: 左上  right: 右上
  * @default left
  *
  * @param Popup Width
+ * @type number
+ * @min 200
  * @desc ポップアップ表示の横幅(px)
  * 最低200以上で設定してください
  * @default 250
  *
  * @param Popup Wait
+ * @type number
+ * @decimals 2
+ * @min 0
  * @desc ポップアップの表示時間(秒)
  * （フェードイン/アウトの時間は含みません）
  * @default 0.75
  *
  * @param Popup Message
+ * @type string
  * @desc 獲得時に表示するメッセージ
  * @default 実績を獲得しました
  *
@@ -56,34 +70,46 @@
  * @param ■ タイトル/メニュー
  *
  * @param Use Title
+ * @type select
+ * @option ON
+ * @option OFF
  * @desc タイトル画面に項目を表示するか
  * ON: 表示する　OFF: 表示しない　（default: ON）
  * @default ON
  *
  * @param Use Menu
+ * @type select
+ * @option ON
+ * @option OFF
  * @desc メニュー画面に項目を表示するか
  * ON: 表示する　OFF: 表示しない　（default: ON）
  * @default ON
  *
  * @param Menu Text
+ * @type string
  * @desc タイトル/メニューに表示する際の項目名
  * @default 実績
  *
  * @param ■ 実績画面
  *
  * @param List Hidden Title
+ * @type string
  * @desc シークレット実績のタイトル
  * @default ？？？？？
  *
  * @param List Hidden Description
+ * @type string
  * @desc シークレット実績の説明文
  * @default (未獲得)
  *
  * @param List Hidden Icon
+ * @type number
+ * @min 0
  * @desc シークレット実績のアイコンID
  * @default 0
  *
  * @param List Cancel Message
+ * @type string
  * @desc 実績画面を閉じるボタンのテキスト。
  * 空欄の場合は閉じるボタンを表示しません
  * @default 閉じる
