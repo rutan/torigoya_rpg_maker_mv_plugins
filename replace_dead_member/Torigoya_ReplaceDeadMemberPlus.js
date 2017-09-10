@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_ReplaceDeadMemberPlus.js
  *---------------------------------------------------------------------------*
- * 2017/08/11 ru_shalm
+ * 2017/09/10 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -285,6 +285,15 @@
         } else {
             upstream_BattleManager_updateTurnEnd.apply(this);
         }
+    };
+
+    // バトルイベント終了時などに全滅判定されないようにする
+    var upstream_BattleManager_checkBattleEnd = BattleManager.checkBattleEnd;
+    BattleManager.checkBattleEnd = function() {
+        if (this._phase && $gameParty.isAllDead() && ReplaceDeadMember.isReplaceable()) {
+            return false;
+        }
+        return upstream_BattleManager_checkBattleEnd.apply(this);
     };
 
     // -------------------------------------------------------------------------
