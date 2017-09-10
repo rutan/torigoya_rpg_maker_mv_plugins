@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_ReplaceDeadMemberPlus.js
  *---------------------------------------------------------------------------*
- * 2017/09/10 ru_shalm
+ * 2017/09/11 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -330,9 +330,11 @@
         var upstream_Scene_Party_terminate = Scene_Party.prototype.terminate;
         Scene_Party.prototype.terminate = function () {
             upstream_Scene_Party_terminate.apply(this);
-            ReplaceDeadMember.sortDeadMember();
-            if (ReplaceDeadMember.isSaveSortOrder()) ReplaceDeadMember.saveSortOrder();
-            ReplaceDeadMember.swapDeadMember();
+            if (ReplaceDeadMember.isEnabled()) {
+                ReplaceDeadMember.sortDeadMember();
+                if (ReplaceDeadMember.isSaveSortOrder()) ReplaceDeadMember.saveSortOrder();
+                ReplaceDeadMember.swapDeadMember();
+            }
         };
 
         var upstream_Game_Party_torigoya__replaceDeadMember__restoreSort = Game_Party.prototype.torigoya__replaceDeadMember__restoreSort;
