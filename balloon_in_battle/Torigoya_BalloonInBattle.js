@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2017/07/23 ru_shalm
+ * 2017/10/22 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -292,7 +292,7 @@
     Object.defineProperties(Window_Balloon.prototype, {
         z: {
             enumerable: false,
-            get: function() {
+            get: function () {
                 return 9999;
             }
         }
@@ -548,20 +548,39 @@
         clearSpeechOfAllMember();
     };
 
-    // 回復系
+    // ステート解除・回復系
     // @note 自分で回復したのか他人が回復したのかを取るためにここでチェックする
     var upstream_Window_BattleLog_displayActionResults = Window_BattleLog.prototype.displayActionResults;
     Window_BattleLog.prototype.displayActionResults = function (subject, target) {
         upstream_Window_BattleLog_displayActionResults.apply(this, [subject, target]);
-        if (target.result().used && target.result().hpAffected && subject !== target && target.canMove()) {
-            if (target.result().hpDamage < 0 || target.result().mpDamage < 0 || target.result().tpDamage < 0) {
+
+        var speech = null;
+        if (target.result().used && subject !== target && target.canMove()) {
+            // ステート解除
+            if (target.result().isStatusAffected()) {
+                target.result().removedStateObjects().forEach(function (state) {
+                    if (speech) return;
+                    if (subject.isEnemy() === target.isEnemy()) { // 味方同士 or 敵同士
+                        speech = target.torigoya_pickSpeech('RemoveState_' + state.id, subjectID, subject.name());
+                    } else {
+                        speech = target.torigoya_pickSpeech('RemoveStateByRival_' + state.id, subjectID, subject.name());
+                    }
+                });
+            }
+
+            // 回復系
+            if (!speech && (target.result().hpDamage < 0 || target.result().mpDamage < 0 || target.result().tpDamage < 0)) {
                 var subjectID = subject.isActor() ? subject.actorId() : subject.enemyId();
                 if (subject.isEnemy() === target.isEnemy()) { // 味方同士 or 敵同士
-                    target.torigoya_setSpeech(target.torigoya_pickSpeech('Recovery', subjectID, subject.name()));
+                    speech = target.torigoya_pickSpeech('Recovery', subjectID, subject.name());
                 } else {
-                    target.torigoya_setSpeech(target.torigoya_pickSpeech('RecoveryByRival', subjectID, subject.name()));
+                    speech = target.torigoya_pickSpeech('RecoveryByRival', subjectID, subject.name());
                 }
             }
+        }
+
+        if (speech) {
+            target.torigoya_setSpeech(speech);
         }
     };
 
