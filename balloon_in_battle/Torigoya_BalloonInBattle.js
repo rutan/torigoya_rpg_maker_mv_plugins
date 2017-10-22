@@ -36,6 +36,14 @@
  * @desc Line Height of Balloon Message (recommend: 20)
  * @default 20
  *
+ * @param --- Secret（deprecated） ---
+ *
+ * @param Secret Disable Append To Field
+ * @type select
+ * @option ON
+ * @option OFF
+ * @default OFF
+ *
  * @help
  * < This Plugin is usable in SideView-Mode >
  * Popup message balloon on actors in battle.
@@ -98,20 +106,33 @@
  * @param --- 上級者設定 ---
  *
  * @param Balloon Padding
+ * @type number
  * @desc 吹き出しの余白のサイズ (推奨: 8)
  * @default 8
  *
  * @param Balloon Font Size
+ * @type number
  * @desc 吹き出しの文字サイズ (推奨: 16)
  * @default 16
  *
  * @param Balloon Text Padding
+ * @type number
  * @desc 吹き出しのテキスト両端の余白 (推奨: 6)
  * @default 6
  *
  * @param Balloon Line Height
+ * @type number
  * @desc 吹き出しの1行あたりの高さ。文字サイズよりちょっと大きめがよいです。 (推奨: 20)
  * @default 20
+ *
+ * @param --- ひみつ設定（非推奨） ---
+ *
+ * @param Secret Disable Append To Field
+ * @type select
+ * @desc 画面の色調変更の影響を受けなくなりますが、ONにするとYEP_BattleEngineCoreで動かなくなります
+ * @option ON
+ * @option OFF
+ * @default OFF
  *
  * @help
  * 【このプラグインはサイドビュー戦闘でのみ使用できます】
@@ -211,6 +232,7 @@
     settings['Balloon Font Size'] = Number(settings['Balloon Font Size'] || 16);
     settings['Balloon Text Padding'] = Number(settings['Balloon Text Padding'] || 6);
     settings['Balloon Line Height'] = Number(settings['Balloon Line Height'] || 20);
+    settings['Secret Disable Append To Field'] = String(settings['Secret Disable Append To Field']) === 'ON';
 
     /**
      * 競合プラグインのチェック
@@ -515,7 +537,14 @@
     Spriteset_Battle.prototype.createLowerLayer = function () {
         upstream_Spriteset_Battle_createLowerLayer.apply(this);
         maybeOriginal_battlerSprites.apply(this).forEach((function (battlerSprite) {
-            this._battleField.addChild(battlerSprite.torigoya_balloonWindow);
+            // 画面の色調変更の暫定対応
+            // battleFieldにappendしてしまうと影響を受けてしまうが、
+            // カメラなどの対応ができないのでYEPプラグインなどでおかしくなってしまう…＞＜；
+            if (settings['Secret Disable Append To Field']) {
+                this.addChild(battlerSprite.torigoya_balloonWindow);
+            } else {
+                this._battleField.addChild(battlerSprite.torigoya_balloonWindow);
+            }
         }).bind(this));
     };
 
