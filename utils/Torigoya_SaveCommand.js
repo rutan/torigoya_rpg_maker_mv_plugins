@@ -199,7 +199,7 @@
         }
 
         $gameSystem.onBeforeSave();
-        if (DataManager.saveGame(slotId)) {
+        if (DataManager.saveGame(slotId) && StorageManager.cleanBackup) {
             StorageManager.cleanBackup(slotId);
         }
 
