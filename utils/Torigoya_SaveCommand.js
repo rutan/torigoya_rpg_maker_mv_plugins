@@ -1,6 +1,9 @@
-//=============================================================================
-// Torigoya_SaveCommand.js
-//=============================================================================
+/*---------------------------------------------------------------------------*
+ * Torigoya_SaveCommand.js
+ *---------------------------------------------------------------------------*
+ * 2018/01/03 ru_shalm
+ * http://torigoya.hatenadiary.jp/
+ *---------------------------------------------------------------------------*/
 
 /*:
  * @plugindesc Add save command in Plugin Command
@@ -49,6 +52,15 @@
  *
  * ※ ロード/セーブしていない場合はスロット1になります。
  *
+ * ＜おまけ＞
+ * セーブ時に以下のように末尾に「notime」をつけることで
+ * セーブ時刻を更新せずにセーブすることができます。
+ *
+ * SaveCommand save 1 notime
+ *
+ * これによってロード画面でカーソル位置をオートセーブした場所ではなく
+ * プレイヤーが自分でセーブしたファイルに合わせたままにすることができます。
+ *
  * ------------------------------------------------------------
  * ■ プラグインコマンド（ロード系）
  * ------------------------------------------------------------
@@ -93,8 +105,23 @@
  */
 
 (function (global) {
-    var SaveCommand = {};
+    'use strict';
 
+    var SaveCommand = {
+        name: 'Torigoya_SaveCommand',
+        settings: {},
+        lastTimestamp: undefined,
+        lastAccessId: undefined
+    };
+
+    // -------------------------------------------------------------------------
+    // SaveCommand
+
+    /**
+     * スロットID指定文字列からスロットIDを求める
+     * @param {string} str
+     * @returns {number}
+     */
     SaveCommand.parseSlotId = function (str) {
         var slotId, matches;
         if (matches = str.match(/^\[(\d+)\]$/)) {
@@ -119,13 +146,20 @@
         return slotId;
     };
 
-    SaveCommand.runCommand = function (gameInterpreter, type, slotId) {
+    /**
+     * セーブ系コマンド処理の実行
+     * @param {Game_Interpreter} gameInterpreter
+     * @param {string} type
+     * @param {number} slotId
+     * @param {boolean} skipTimestamp
+     */
+    SaveCommand.runCommand = function (gameInterpreter, type, slotId, skipTimestamp) {
         switch (type) {
             case 'load':
                 this.runCommandLoad(gameInterpreter, slotId);
                 break;
             case 'save':
-                this.runCommandSave(gameInterpreter, slotId);
+                this.runCommandSave(gameInterpreter, slotId, skipTimestamp);
                 break;
             case 'remove':
                 this.runCommandRemove(gameInterpreter, slotId);
@@ -133,7 +167,12 @@
         }
     };
 
-    // 無理やり感ある
+    /**
+     * ロード処理
+     * @note ちょっと無理やり感があるのでイベントの組み方次第ではまずそう
+     * @param {Game_Interpreter} gameInterpreter
+     * @param {number} slotId
+     */
     SaveCommand.runCommandLoad = function (gameInterpreter, slotId) {
         if (!DataManager.isThisGameFile(slotId)) return;
 
@@ -146,15 +185,50 @@
         $gameSystem.onAfterLoad();
     };
 
-    SaveCommand.runCommandSave = function (_, slotId) {
+    /**
+     * セーブ処理
+     * @param {Game_Interpreter} _
+     * @param {number} slotId
+     * @param {boolean} skipTimestamp
+     */
+    SaveCommand.runCommandSave = function (_, slotId, skipTimestamp) {
+        if (skipTimestamp) {
+            var info = DataManager.loadSavefileInfo(slotId);
+            SaveCommand.lastTimestamp = info && info.timestamp ? info.timestamp : 0;
+            SaveCommand.lastAccessId = DataManager.lastAccessedSavefileId();
+        }
+
         $gameSystem.onBeforeSave();
         if (DataManager.saveGame(slotId)) {
             StorageManager.cleanBackup(slotId);
         }
+
+        if (skipTimestamp) {
+            DataManager._lastAccessedId = SaveCommand.lastAccessId;
+            SaveCommand.lastTimestamp = undefined;
+            SaveCommand.lastAccessId = undefined;
+        }
     };
 
+    /**
+     * セーブファイルの削除処理
+     * @param {Game_Interpreter} _
+     * @param {number} slotId
+     */
     SaveCommand.runCommandRemove = function (_, slotId) {
         StorageManager.remove(slotId);
+    };
+
+    // -------------------------------------------------------------------------
+    // alias
+
+    var upstream_DataManager_makeSavefileInfo = DataManager.makeSavefileInfo;
+    DataManager.makeSavefileInfo = function () {
+        var info = upstream_DataManager_makeSavefileInfo.apply(this);
+        if (SaveCommand.lastTimestamp !== undefined) {
+            info.timestamp = SaveCommand.lastTimestamp;
+        }
+        return info;
     };
 
     var upstream_Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
@@ -162,7 +236,8 @@
         if (command === 'SaveCommand') {
             var type = (args[0] || '').trim();
             var slotId = SaveCommand.parseSlotId((args[1] || '').trim());
-            SaveCommand.runCommand(this, type, slotId);
+            var skipTimestamp = (args[2] === 'notime');
+            SaveCommand.runCommand(this, type, slotId, skipTimestamp);
             return;
         }
         upstream_Game_Interpreter_pluginCommand.apply(this, arguments);
@@ -171,4 +246,4 @@
     // -------------------------------------------------------------------------
     global.Torigoya = (global.Torigoya || {});
     global.Torigoya.SaveCommand = SaveCommand;
-})(this);
+})(window);
