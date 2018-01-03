@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_CustomRetryMessage.js
  *---------------------------------------------------------------------------*
- * 2017/05/13 ru_shalm
+ * 2018/01/03 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -22,12 +22,37 @@
  * @default リトライする
  *
  * @help
- *   アツマール版コアスクリプト1.2から導入された
- *   リトライ読み込み機能の見た目やメッセージを変更します。
+ * RPGツクールMV 1.5から追加されたファイル読み込みリトライ機能について
+ * 見た目とメッセージをいい感じにします。
+ *
+ * ------------------------------------------------------------
+ *
+ * ■ 「コアスクリプトのバージョンが対応していません」と表示される場合
+ *
+ * このプラグインを使用するためには、
+ * コアスクリプト（rpg_core.js などのファイル）について
+ * 以下のどちらかのバージョンを使用する必要があります。
+
+ * ・RPGツクールMV バージョン 1.5 以上
+ * ・コアスクリプト community-1.2 以上
+ *
+ * コアスクリプトの更新方法は各公式サイトをご覧ください。
+ *
+ * アップデート方法 - RPGツクールMV(Win) アップデート
+ * https://tkool.jp/support/download/rpgmv/rpgmv_update
+ *
+ * コアスクリプトの更新方法 - RPGアツマール お知らせブログ
+ * http://blog.nicovideo.jp/atsumaru/atsumaru-corescript/guide.html
  */
 
 (function (global) {
     'use strict';
+
+    if (!global.ResourceHandler) {
+        var error = '[Torigoya_CustomRetryMessage.js - カスタムリトライメッセージさん]\nコアスクリプトのバージョンが対応していません。\n詳しくはプラグインの説明をご覧ください。';
+        window.alert(error);
+        throw error;
+    }
 
     var CustomRetryMessage = {
         name: 'Torigoya_CustomRetryMessage'
