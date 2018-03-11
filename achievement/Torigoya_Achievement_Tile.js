@@ -174,7 +174,7 @@
         var index = this.index();
         var maxItems = this.maxItems();
         var maxCols = this.maxCols();
-        if (index === maxItems - 1) {
+        if (Achievement.settings.listCancel && index === maxItems - 1) {
             this.select(index - 1);
         } else if (index >= maxCols || (wrap && maxCols === 1)) {
             this.select((index - maxCols + maxItems) % maxItems);
@@ -187,7 +187,7 @@
         var maxCols = this.maxCols();
         if (index < maxItems - maxCols || (wrap && maxCols === 1)) {
             this.select((index + maxCols) % maxItems);
-        } else {
+        } else if (Achievement.settings.listCancel) {
             this.select(maxItems - 1);
         }
     };
