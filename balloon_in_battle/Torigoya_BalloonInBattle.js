@@ -196,6 +196,14 @@
  * <Speech/Start: 戦闘が始まったときのメッセージ>
  * <Speech/Start[1]: トループ1番との戦闘が始まったときのメッセージ>
  *
+ * <Speech/Turn: そのキャラクターの行動選択中に表示するメッセージ>
+ * <Speech/Turn[1]: トループ1番との戦闘時の行動選択中に表示するメッセージ>
+ *   敵キャラの場合はプレイヤーが行動選択中は常に表示されるようになります。
+ *
+ * <Speech/Dying: そのキャラクターが瀕死中かつ行動選択中に表示するメッセージ>
+ * <Speech/Dying[1]: 瀕死中かつトループ1番との戦闘時の行動選択中に表示するメッセージ>
+ *   未設定の場合は <Speech/Turn> のセリフを表示します。
+ *
  * <Speech/Victory: 戦闘勝利時のメッセージ>
  * <Speech/Victory[1]: トループ1番との戦闘勝利時のメッセージ>
  *
@@ -276,9 +284,23 @@
      * 全メンバーのセリフを削除
      */
     var clearSpeechOfAllMember = function () {
+        clearSpeechOfAllActors();
+        clearSpeechOfAllEnemies();
+    };
+
+    /**
+     * 全アクターのセリフを削除
+     */
+    var clearSpeechOfAllActors = function () {
         $gameParty.allMembers().forEach(function (actor) {
             actor.torigoya_clearSpeech();
         });
+    };
+
+    /**
+     * 全エネミーのセリフを削除
+     */
+    var clearSpeechOfAllEnemies = function () {
         $gameTroop.members().forEach(function (enemy) {
             enemy.torigoya_clearSpeech();
         });
@@ -288,9 +310,23 @@
      * 全メンバーのセリフをちょっと待ってから削除
      */
     var delayClearSpeechOfAllMember = function (wait) {
+        delayClearSpeechOfAllActors();
+        delayClearSpeechOfAllEnemies();
+    };
+
+    /**
+     * 全アクターのセリフをちょっと待ってから削除
+     */
+    var delayClearSpeechOfAllActors = function (wait) {
         $gameParty.allMembers().forEach(function (actor) {
             actor.torigoya_delayClearSpeech(wait);
         });
+    };
+
+    /**
+     * 全エネミーのセリフをちょっと待ってから削除
+     */
+    var delayClearSpeechOfAllEnemies = function (wait) {
         $gameTroop.members().forEach(function (enemy) {
             enemy.torigoya_delayClearSpeech(wait);
         });
@@ -751,6 +787,19 @@
                 if (speech) member.torigoya_setSpeech(speech);
             }
         }
+
+        $gameTroop.members().forEach(function (enemy) {
+            if (enemy.torigoya_getSpeech()) {
+                enemy.torigoya_cancelDelayClearSpeech();
+                return;
+            }
+
+            var speech = [
+                enemy.isDying() ? enemy.torigoya_pickSpeech('Dying', $gameTroop._troopId) : null,
+                enemy.torigoya_pickSpeech('Turn', $gameTroop._troopId)
+            ].filter(Boolean)[0];
+            if (speech) enemy.torigoya_setSpeech(speech);
+        });
     };
 
     // 戦闘終了時
@@ -766,11 +815,16 @@
         upstream_BattleManager_processVictory.apply(this);
     };
 
-    // YEP Battle Core: パーティコマンドに移動したらメッセージを消す
     if (conflictPlugins.YanflyBattleCore && Yanfly.BEC.Scene_Battle_startPartyCommandSelection) {
         var upstream_Yanfly_BEC_Scene_Battle_startPartyCommandSelection = Yanfly.BEC.Scene_Battle_startPartyCommandSelection;
         Yanfly.BEC.Scene_Battle_startPartyCommandSelection = function () {
             upstream_Yanfly_BEC_Scene_Battle_startPartyCommandSelection.apply(this);
+            clearSpeechOfAllMember();
+        }
+    } else {
+        var upstream_Scene_Battle_startPartyCommandSelection = Scene_Battle.prototype.startPartyCommandSelection;
+        Scene_Battle.prototype.startPartyCommandSelection = function () {
+            upstream_Scene_Battle_startPartyCommandSelection.apply(this);
             clearSpeechOfAllMember();
         }
     }
