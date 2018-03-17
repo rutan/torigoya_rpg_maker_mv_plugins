@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2018/03/17 ru_shalm
+ * 2018/03/18 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -789,6 +789,8 @@
         }
 
         $gameTroop.members().forEach(function (enemy) {
+            if (!enemy.isAlive()) return;
+
             if (enemy.torigoya_getSpeech()) {
                 enemy.torigoya_cancelDelayClearSpeech();
                 return;
