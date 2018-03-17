@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2017/10/22 ru_shalm
+ * 2018/03/17 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -405,6 +405,7 @@
     Game_BattlerBase.prototype.initialize = function () {
         upstream_Game_BattlerBase_initialize.apply(this);
         this._torigoya_speech = null;
+        this._torigoya_speechUniqueID = null;
     };
 
     /**
@@ -452,6 +453,13 @@
                 this.torigoya_clearSpeech();
             }
         }.bind(this), wait);
+    };
+
+    /**
+     * ちょっと待ってからメッセージ消去をキャンセルする
+     */
+    Game_BattlerBase.prototype.torigoya_cancelDelayClearSpeech = function () {
+        this._torigoya_speechUniqueID = Math.random();
     };
 
     /**
@@ -712,7 +720,7 @@
         });
     };
 
-    // 行動選択時（吹き出し削除）
+    // パーティの行動選択開始時（吹き出し削除）
     var upstream_BattleManager_startInput = BattleManager.startInput;
     BattleManager.startInput = function () {
         if (conflictPlugins.YanflyBattleCore) {
@@ -721,6 +729,28 @@
             clearSpeechOfAllMember();
         }
         upstream_BattleManager_startInput.apply(this);
+    };
+
+    // アクターの行動選択時
+    var upstream_BattleManager_changeActor = BattleManager.changeActor;
+    BattleManager.changeActor = function (newActorIndex, lastActorActionState) {
+        var member = this.actor();
+        if (member) member.torigoya_clearSpeech();
+
+        upstream_BattleManager_changeActor.call(this, newActorIndex, lastActorActionState);
+
+        member = this.actor();
+        if (member) {
+            if (conflictPlugins.YanflyBattleCore && member.torigoya_getSpeech()) {
+                member.torigoya_cancelDelayClearSpeech();
+            } else {
+                var speech = [
+                    member.isDying() ? member.torigoya_pickSpeech('Dying', $gameTroop._troopId) : null,
+                    member.torigoya_pickSpeech('Turn', $gameTroop._troopId)
+                ].filter(Boolean)[0];
+                if (speech) member.torigoya_setSpeech(speech);
+            }
+        }
     };
 
     // 戦闘終了時
@@ -735,6 +765,15 @@
         }
         upstream_BattleManager_processVictory.apply(this);
     };
+
+    // YEP Battle Core: パーティコマンドに移動したらメッセージを消す
+    if (conflictPlugins.YanflyBattleCore && Yanfly.BEC.Scene_Battle_startPartyCommandSelection) {
+        var upstream_Yanfly_BEC_Scene_Battle_startPartyCommandSelection = Yanfly.BEC.Scene_Battle_startPartyCommandSelection;
+        Yanfly.BEC.Scene_Battle_startPartyCommandSelection = function () {
+            upstream_Yanfly_BEC_Scene_Battle_startPartyCommandSelection.apply(this);
+            clearSpeechOfAllMember();
+        }
+    }
 
     // -------------------------------------------------------------------------
 
