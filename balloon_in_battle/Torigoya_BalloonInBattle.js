@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2018/03/18 ru_shalm
+ * 2018/03/23 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -310,8 +310,8 @@
      * 全メンバーのセリフをちょっと待ってから削除
      */
     var delayClearSpeechOfAllMember = function (wait) {
-        delayClearSpeechOfAllActors();
-        delayClearSpeechOfAllEnemies();
+        delayClearSpeechOfAllActors(wait);
+        delayClearSpeechOfAllEnemies(wait);
     };
 
     /**
