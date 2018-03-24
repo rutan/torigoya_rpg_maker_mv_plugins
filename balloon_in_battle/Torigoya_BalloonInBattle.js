@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2018/03/23 ru_shalm
+ * 2018/03/24 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -246,7 +246,12 @@
      * 競合プラグインのチェック
      */
     var conflictPlugins = {
-        YanflyBattleCore: (global.Yanfly && global.Yanfly.BEC)
+        YanflyBattleCore: (global.Yanfly && global.Yanfly.BEC),
+        TMBattleCommandEx_omitPartyCommand: (function () {
+            if (!global.Imported || !global.Imported.TMBattleCommandEx) return false;
+            var params = PluginManager.parameters('TMBattleCommandEx');
+            return String(params['omitPartyCommand']) === '1';
+        })()
     };
 
     /**
@@ -771,13 +776,22 @@
     var upstream_BattleManager_changeActor = BattleManager.changeActor;
     BattleManager.changeActor = function (newActorIndex, lastActorActionState) {
         var member = this.actor();
-        if (member) member.torigoya_clearSpeech();
+        if (member) {
+            if (conflictPlugins.TMBattleCommandEx_omitPartyCommand) {
+                // キャンセル連打で先頭アクターが何度も喋るのを防止するため
+                member.torigoya_delayClearSpeech(1);
+            } else {
+                member.torigoya_clearSpeech();
+            }
+        }
 
         upstream_BattleManager_changeActor.call(this, newActorIndex, lastActorActionState);
 
         member = this.actor();
         if (member) {
             if (conflictPlugins.YanflyBattleCore && member.torigoya_getSpeech()) {
+                member.torigoya_cancelDelayClearSpeech();
+            } else if (conflictPlugins.TMBattleCommandEx_omitPartyCommand && member.torigoya_getSpeech()) {
                 member.torigoya_cancelDelayClearSpeech();
             } else {
                 var speech = [
@@ -817,7 +831,9 @@
         upstream_BattleManager_processVictory.apply(this);
     };
 
-    if (conflictPlugins.YanflyBattleCore && Yanfly.BEC.Scene_Battle_startPartyCommandSelection) {
+    if (conflictPlugins.TMBattleCommandEx_omitPartyCommand) {
+        // nothing to do
+    } else if (conflictPlugins.YanflyBattleCore && Yanfly.BEC.Scene_Battle_startPartyCommandSelection) {
         var upstream_Yanfly_BEC_Scene_Battle_startPartyCommandSelection = Yanfly.BEC.Scene_Battle_startPartyCommandSelection;
         Yanfly.BEC.Scene_Battle_startPartyCommandSelection = function () {
             upstream_Yanfly_BEC_Scene_Battle_startPartyCommandSelection.apply(this);
