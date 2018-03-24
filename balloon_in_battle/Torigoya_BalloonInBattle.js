@@ -226,6 +226,7 @@
  * <Speech/Dead: 守れなかった…ッ>
  * <Speech/Recovery: ありがとう>
  * <Speech/Start: 全力で行く！>
+ * <Speech/Turn: ケリをつける！, ここが勝機だ>
  * <Speech/Victory: この調子でいこう！>
  * <Speech/Substitute: させるか！>
  * <Speech/Protected: すまない！>
