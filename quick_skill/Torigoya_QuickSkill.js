@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2017/05/02 ru_shalm
+ * 2018/05/01 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -111,6 +111,7 @@
                     return true;
                 }
                 this._phase = QuickSkill.isBattleEnd() ? 'turn' : 'input';
+                this.refreshStatus();
                 break;
         }
         return upstream_BattleManager_updateEvent.apply(this);
