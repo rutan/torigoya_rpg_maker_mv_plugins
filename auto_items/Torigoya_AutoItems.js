@@ -1,6 +1,9 @@
-//=============================================================================
-// Torigoya_AutoItems.js
-//=============================================================================
+/*---------------------------------------------------------------------------*
+ * Torigoya_AutoItems.js
+ *---------------------------------------------------------------------------*
+ * 2018/05/01 ru_shalm
+ * http://torigoya.hatenadiary.jp/
+ *---------------------------------------------------------------------------*/
 
 /*:
  * @plugindesc Automatic use items or skills when damaged by enemy.
@@ -721,6 +724,10 @@
      * @param {Game_BattlerBase} battler 割り込み行動を行うバトラー
      */
     BattleManager.torigoya_autoItemsInterruptAction = function (battler) {
+        // 行動回数が残っている場合は後で再開するためにもう一度順番待ちにする
+        if (this._subject && this._subject.numActions() > 0) {
+            this._actionBattlers.unshift(this._subject);
+        }
         this._actionForcedBattler = battler;
     };
 
