@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_AutoItems.js
  *---------------------------------------------------------------------------*
- * 2018/05/01 ru_shalm
+ * 2018/05/12 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -256,7 +256,7 @@
         if (DataManager.isSkill(item)) {
             subject.canUse(item);
             if (subject.isActor()) {
-                return subject.canUse(item) && subject.isLearnedSkill(item.id);
+                return subject.canUse(item) && subject.hasSkill(item.id);
             } else {
                 return subject.canUse(item);
             }
