@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2017/08/20 ru_shalm
+ * 2018/06/06 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -65,6 +65,13 @@
  * @default Saint5
  * @require 1
  * @dir audio/se/
+ * @type file
+ *
+ * @param Popup Window Image
+ * @desc ポップアップ表示に使用するウィンドウ画像のファイル名 (default: Window)
+ * @default Window
+ * @require 1
+ * @dir img/system/
  * @type file
  *
  * @param ■ タイトル/メニュー
@@ -149,6 +156,7 @@
             popupMessage: String(parameters['Popup Message'] || '実績を獲得しました'),
             popupSound: String(parameters['Popup Sound'] || ''),
             popupWait: Number(parameters['Popup Wait'] || 0.75),
+            popupWindowImage: String(parameters['Popup Window Image'] || 'Window'),
             listHiddenTitle: String(parameters['List Hidden Title'] || '？？？？？'),
             listHiddenDescription: String(parameters['List Hidden Description'] || ''),
             listHiddenIcon: Number(parameters['List Hidden Icon'] || 0),
@@ -460,6 +468,10 @@
         this.resetTextColor();
         this.contents.fontSize = 12;
         this.contents.drawText(Achievement.settings.popupMessage, 50, 29, textWidth, 12, 'left');
+    };
+
+    Window_AchievementPopup.prototype.loadWindowskin = function () {
+        this.windowskin = ImageManager.loadSystem(Achievement.settings.popupWindowImage);
     };
 
     Achievement.Window_AchievementPopup = Window_AchievementPopup;
