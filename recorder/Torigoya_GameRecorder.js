@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_GameRecorder.js
  *---------------------------------------------------------------------------*
- * 2018/02/23 ru_shalm
+ * 2018/06/06 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -158,7 +158,7 @@
     Recorder.prototype.stop = function () {
         if (!this._isRecording) return Promise.reject();
 
-        return new Promise((resolve) => {
+        return new Promise(function (resolve) {
             this._isRecording = false;
             this._recorder.addEventListener('stop', function (_e) {
                 this._result = new Blob(this._chunks, {type: this._usableMimeType()});
@@ -166,7 +166,7 @@
                 this.emit('stop', this);
             }.bind(this));
             this._recorder.stop();
-        });
+        }.bind(this));
     };
 
     Recorder.prototype.isRecording = function () {
@@ -241,7 +241,7 @@
                 case 'ストップ':
                 case '終了':
                     if (GameRecorder.isSupported()) {
-                        GameRecorder.getRecorder().stop().then((e) => {
+                        GameRecorder.getRecorder().stop().then(function (e) {
                             GameRecorder.saveBlob(e);
                         });
                     }
