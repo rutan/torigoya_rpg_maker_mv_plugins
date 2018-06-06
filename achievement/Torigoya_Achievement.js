@@ -74,6 +74,14 @@
  * @dir img/system/
  * @type file
  *
+ * @param Popup Opacity
+ * @desc ポップアップ表示ウィンドウの背景の透明度(0〜255)
+ * -1の場合はデフォルトの透明度を使用します。
+ * @type number
+ * @min -1
+ * @max 255
+ * @default -1
+ *
  * @param ■ タイトル/メニュー
  *
  * @param Use Title
@@ -157,6 +165,7 @@
             popupSound: String(parameters['Popup Sound'] || ''),
             popupWait: Number(parameters['Popup Wait'] || 0.75),
             popupWindowImage: String(parameters['Popup Window Image'] || 'Window'),
+            popupOpacity: Number(parameters['Popup Opacity'] === undefined ? -1 : parameters['Popup Opacity']),
             listHiddenTitle: String(parameters['List Hidden Title'] || '？？？？？'),
             listHiddenDescription: String(parameters['List Hidden Description'] || ''),
             listHiddenIcon: Number(parameters['List Hidden Icon'] || 0),
@@ -369,6 +378,7 @@
             }.bind(this))();
 
             var originalOpacity = window.opacity;
+            var originalBackOpacity = window.backOpacity;
             Torigoya.Tween.create(window, {
                 x: x + window.width * (isLeft ? -1 : 1),
                 y: y,
@@ -379,7 +389,7 @@
                 .to({
                     x: x,
                     opacity: originalOpacity,
-                    backOpacity: 255,
+                    backOpacity: originalBackOpacity,
                     contentsOpacity: 255
                 }, 30, Torigoya.Tween.Easing.easeOutCircular)
                 .wait(Math.floor(Achievement.settings.popupWait * 60))
@@ -472,6 +482,11 @@
 
     Window_AchievementPopup.prototype.loadWindowskin = function () {
         this.windowskin = ImageManager.loadSystem(Achievement.settings.popupWindowImage);
+    };
+
+    Window_AchievementPopup.prototype.standardBackOpacity = function () {
+        return Achievement.settings.popupOpacity === -1 ?
+            Window_Base.prototype.standardBackOpacity.call(this) : Achievement.settings.popupOpacity;
     };
 
     Achievement.Window_AchievementPopup = Window_AchievementPopup;
