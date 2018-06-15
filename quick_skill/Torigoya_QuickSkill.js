@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2018/05/01 ru_shalm
+ * 2018/06/16 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -36,7 +36,8 @@
     var QuickSkill = {
         currentActionActor: null,
         originalSubject: null,
-        actorIndexForForcedAction: null
+        actorIndexForForcedAction: null,
+        backupActions: null
     };
 
     // ターン消費なしスキル中はActionを減らさないようにしないと死ぬ
@@ -46,9 +47,20 @@
             this._actions.sort(function (a, _) {
                 return a._item.isNull() ? 1 : 0;
             });
+        } else if (QuickSkill.actorIndexForForcedAction !== null) {
+            this._actions = QuickSkill.backupActions;
         } else {
             this._actions.shift();
         }
+    };
+
+    // ターン消費なし戦闘行動の強制の場合は行動を保存してあげる
+    var upstream_Game_Battler_forceAction = Game_Battler.prototype.forceAction;
+    Game_Battler.prototype.forceAction = function(skillId, targetIndex) {
+        if (BattleManager._phase === 'torigoya_quickSkill') {
+            QuickSkill.backupActions = this._actions;
+        }
+        upstream_Game_Battler_forceAction.apply(this, arguments);
     };
 
     // Actionが決定されたら、Actionの中にターン消費なしスキルがないか調べる
@@ -96,10 +108,11 @@
     BattleManager.updateEvent = function () {
         switch (this._phase) {
             case 'turn':
-                if (QuickSkill.actorIndexForForcedAction) {
+                if (QuickSkill.actorIndexForForcedAction !== null) {
                     this._phase = 'torigoya_quickSkill';
                     this._actorIndex = QuickSkill.actorIndexForForcedAction;
                     QuickSkill.actorIndexForForcedAction = null;
+                    QuickSkill.backupActions = null;
                 }
                 break;
             case 'torigoya_quickSkill':
@@ -110,7 +123,9 @@
                 } else if (this.updateEventMain()) {
                     return true;
                 }
-                this._phase = QuickSkill.isBattleEnd() ? 'turn' : 'input';
+                if (this._phase === 'torigoya_quickSkill') {
+                    this._phase = QuickSkill.isBattleEnd() ? 'turn' : 'input';
+                }
                 this.refreshStatus();
                 break;
         }
