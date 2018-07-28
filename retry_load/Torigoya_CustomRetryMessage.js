@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_CustomRetryMessage.js
  *---------------------------------------------------------------------------*
- * 2018/01/03 ru_shalm
+ * 2018/07/29 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -133,6 +133,9 @@
         element.style.background = 'rgba(255, 255, 255, .25)';
         element.style.fontSize = '20px';
         element.style.fontFamily = 'GameFont, sans-serif';
+        element.addEventListener('touchstart', function (e) {
+            e.stopPropagation();
+        });
         element.onclick = ResourceHandler.retry.bind(ResourceHandler);
         return element;
     }
