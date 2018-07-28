@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Tween.js
  *---------------------------------------------------------------------------*
- * 2016/11/10 ru_shalm
+ * 2018/07/29 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -64,6 +64,13 @@
         return this;
     };
 
+    Animator.prototype.call = function (callback) {
+        this._stack.push({
+            callback: callback
+        });
+        return this;
+    };
+
     Animator.prototype.onComplete = function (func) {
         this._callback = func;
         return this;
@@ -71,6 +78,13 @@
 
     Animator.prototype.start = function () {
         if (this.__init()) Tween.$animatorList.push(this);
+        return this;
+    };
+
+    Animator.prototype.abort = function () {
+        this._stack.length = 0;
+        this._timer = this._duration + 1;
+        this._callback = null;
         return this;
     };
 
@@ -84,6 +98,12 @@
 
     Animator.prototype.__init = function () {
         var item = this._stack.shift();
+
+        while (item && item.callback) {
+            item.callback();
+            item = this._stack.shift();
+        }
+
         if (item) {
             this._startParams = {};
             this._finishParams = item.finishParams;
@@ -102,18 +122,22 @@
     };
 
     Animator.prototype.__update = function () {
-        var n = this._easingFunc(this._timer / this._duration);
-        var keys = Object.keys(this._finishParams);
-        for (var i = 0; i < keys.length; ++i) {
-            var key = keys[i];
-            this._obj[key] = this._startParams[key] + (this._finishParams[key] - this._startParams[key]) * n;
-        }
+        this._timer++;
         if (this._timer < this._duration) {
-            this._timer++;
-            return true;
+            var n = this._easingFunc(this._timer / this._duration);
+            var keys = Object.keys(this._finishParams);
+            for (var i = 0; i < keys.length; ++i) {
+                var key = keys[i];
+                this._obj[key] = this._startParams[key] + (this._finishParams[key] - this._startParams[key]) * n;
+            }
         } else {
-            return this.__init();
+            var keys = Object.keys(this._finishParams);
+            for (var i = 0; i < keys.length; ++i) {
+                var key = keys[i];
+                this._obj[key] = this._finishParams[key];
+            }
         }
+        return (this._timer < this._duration) ? true : this.__init();
     };
 
     Tween.Animator = Animator;
