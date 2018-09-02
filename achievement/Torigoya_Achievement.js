@@ -198,16 +198,33 @@
     // AchievementItem
 
     var AchievementItem = (function () {
-        function AchievementItem(id, icon, title, description, secret) {
-            this.id = id;
-            this.icon = icon;
-            this.title = title;
-            this.description = description;
-            this.isSecret = !!secret;
+        function AchievementItem() {
+            this.id = 0;
+            this.icon = 0;
+            this.title = '';
+            this.description = '';
+            this.isSecret = false;
+            this.secretTitle = '';
+            this.secretDescription = '';
+
+            if (arguments.length === 1) {
+                var obj = arguments[0];
+                Object.keys(obj).forEach(function (key) {
+                    this[key] = obj[key];
+                }.bind(this));
+            } else {
+                // 互換維持
+                this.id = arguments[0];
+                this.icon = arguments[1];
+                this.title = arguments[2];
+                this.description = arguments[3];
+                this.isSecret = !!arguments[4];
+            }
         }
 
         AchievementItem.parse = function (array) {
-            var id, icon, title, description = '', secret = false;
+            var id, icon, title, description = '', secret = false,
+                secretTitle = '', secretDescription = '';
             array.forEach(function (line) {
                 var match;
                 if (!id && (match = line.match(/^\s*id:\s*(\d+)/))) {
@@ -218,11 +235,23 @@
                     title = match[1];
                 } else if (match = line.match(/^\s*secret:\s*(.+)\s*$/)) {
                     secret = (match[1] === 'true');
+                } else if (match = line.match(/^\s*secretTitle:\s*(.+)\s*$/)) {
+                    secretTitle = match[1];
+                } else if (match = line.match(/^\s*secretText:\s*(.+)\s*$/)) {
+                    secretDescription = match[1];
                 } else {
                     description += line + '\n';
                 }
             });
-            return new AchievementItem(id, icon, title, description, secret);
+            return new AchievementItem({
+                id: id,
+                icon: icon,
+                title: title,
+                description: description,
+                isSecret: !!secret,
+                secretTitle: secretTitle,
+                secretDescription: secretDescription
+            });
         };
 
         return AchievementItem;
@@ -248,17 +277,26 @@
             }
         }
 
-        return result.map(function (array) {
-            return AchievementItem.parse(array);
-        }).filter(function (item, i, items) {
-            // Array#findIndex
-            for (var j = 0; j < items.length; ++j) {
-                if (items[j].id === item.id) {
-                    return i === j;
-                }
+        var achievements = [];
+        result.forEach(function (array, i) {
+            var item = AchievementItem.parse(array);
+
+            // merge
+            for (var j = 0; j < achievements.length; ++j) {
+                var prevItem = achievements[j];
+                if (prevItem.id !== item.id) continue;
+
+                Object.keys(item).forEach(function (key) {
+                    if (!item[key]) return;
+                    prevItem[key] = item[key];
+                });
+                return;
             }
-            return false;
-        }).sort(function (a, b) {
+
+            achievements.push(item);
+        });
+
+        return achievements.sort(function (a, b) {
             return a.id - b.id;
         });
     };
@@ -570,15 +608,22 @@
             var unlocked = AchievementManager.isUnlocked(achievement.id);
             if (!unlocked && achievement.isSecret) {
                 return {
-                    title: Achievement.settings.listHiddenTitle,
-                    description: Achievement.settings.listHiddenDescription,
+                    title: achievement.secretTitle || Achievement.settings.listHiddenTitle,
+                    description: achievement.secretDescription || Achievement.settings.listHiddenDescription,
                     icon: Achievement.settings.listHiddenIcon,
+                    unlocked: unlocked
+                };
+            } else if (unlocked) {
+                return {
+                    title: achievement.title,
+                    description: achievement.description,
+                    icon: achievement.icon,
                     unlocked: unlocked
                 };
             } else {
                 return {
-                    title: achievement.title,
-                    description: achievement.description,
+                    title: achievement.secretTitle || achievement.title,
+                    description: achievement.secretDescription || achievement.description,
                     icon: achievement.icon,
                     unlocked: unlocked
                 };
