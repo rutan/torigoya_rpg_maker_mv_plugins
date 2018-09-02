@@ -336,13 +336,13 @@
         };
 
         AchievementManager.prototype.isUnlocked = function (id) {
-            return this._achievements[id];
+            return !!this._achievements[id];
         };
 
         AchievementManager.prototype.unlock = function (id) {
             if (this._achievements[id]) return;
             if (!this.data(id)) return;
-            this._achievements[id] = true;
+            this._achievements[id] = Date.now();
             this.save();
             this.notify(id);
         };
