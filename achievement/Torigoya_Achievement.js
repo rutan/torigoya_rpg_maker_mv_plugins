@@ -129,6 +129,16 @@
  * 空欄の場合は閉じるボタンを表示しません
  * @default 閉じる
  *
+ * @param ■ 上級者向け設定
+ *
+ * @param Use Global Save
+ * @type select
+ * @option ON
+ * @option OFF
+ * @desc 全セーブデータで実績を共有するか？　OFFにした場合、タイトル画面に実績メニューを置くことはできません
+ * ON: する　OFF: しない　（default: ON）
+ * @default ON
+ *
  * @help
  * 実績・トロフィー的なシステムを定義します。
  * 実績の項目はコモンイベントに記述することで追加できます。
@@ -172,7 +182,8 @@
             listCancel: String(parameters['List Cancel Message']),
             useTitle: String(parameters['Use Title'] || 'ON') === 'ON',
             useMenu: String(parameters['Use Menu'] || 'ON') === 'ON',
-            menuText: String(parameters['Menu Text'] || '実績')
+            menuText: String(parameters['Menu Text'] || '実績'),
+            useGlobalSave: String(parameters['Use Global Save'] || 'ON') === 'ON'
         };
     })();
 
@@ -261,6 +272,14 @@
             this._callbacks = [];
         }
 
+        AchievementManager.prototype.getRawAchievements = function () {
+            return this._achievements;
+        };
+
+        AchievementManager.prototype.setRawAchievements = function (achievements) {
+            this._achievements = achievements;
+        };
+
         AchievementManager.prototype.data = function (id) {
             // Array#find
             for (var i = 0; i < this._items.length; ++i) {
@@ -308,10 +327,14 @@
         };
 
         AchievementManager.prototype.load = function () {
+            if (!Achievement.settings.useGlobalSave) return;
+
             this._achievements = this._loadAchievements();
         };
 
         AchievementManager.prototype.save = function () {
+            if (!Achievement.settings.useGlobalSave) return;
+
             // [多重起動対応] 旧データとの差異があったら吸収する
             var oldData = this._loadAchievements();
             for (var i = 0; i < this._items.length; ++i) {
@@ -344,6 +367,28 @@
     })();
 
     Achievement.Manager = AchievementManager;
+
+    // 非システムセーブ向け
+    if (!Achievement.settings.useGlobalSave) {
+        var upstream_DataManager_createGameObjects = DataManager.createGameObjects;
+        DataManager.createGameObjects = function () {
+            upstream_DataManager_createGameObjects.apply(this);
+            Achievement.Manager.clear();
+        };
+
+        var upstream_DataManager_makeSaveContents = DataManager.makeSaveContents;
+        DataManager.makeSaveContents = function () {
+            var contents = upstream_DataManager_makeSaveContents.apply(this);
+            contents.torigoyaAchievements = Achievement.Manager.getRawAchievements();
+            return contents;
+        };
+
+        var upstream_DataManager_extractSaveContents = DataManager.extractSaveContents;
+        DataManager.extractSaveContents = function (contents) {
+            upstream_DataManager_extractSaveContents.apply(this, arguments);
+            Achievement.Manager.setRawAchievements(contents.torigoyaAchievements || []);
+        };
+    }
 
     // -------------------------------------------------------------------------
     // AchievementPopupManager
@@ -638,7 +683,7 @@
     // -------------------------------------------------------------------------
     // タイトル画面への追加
 
-    if (Achievement.settings.useTitle) {
+    if (Achievement.settings.useTitle && Achievement.settings.useGlobalSave) {
         var upstream_Window_TitleCommand_makeCommandList = Window_TitleCommand.prototype.makeCommandList;
         Window_TitleCommand.prototype.makeCommandList = function () {
             upstream_Window_TitleCommand_makeCommandList.apply(this);
@@ -652,7 +697,7 @@
         };
     }
 
-    Scene_Title.prototype.torigoyaAchievement_commandAchievement = function() {
+    Scene_Title.prototype.torigoyaAchievement_commandAchievement = function () {
         this._commandWindow.close();
         SceneManager.push(Scene_Achievement);
     };
@@ -674,7 +719,7 @@
         };
     }
 
-    Scene_Menu.prototype.torigoyaAchievement_commandAchievement = function() {
+    Scene_Menu.prototype.torigoyaAchievement_commandAchievement = function () {
         SceneManager.push(Scene_Achievement);
     };
 
