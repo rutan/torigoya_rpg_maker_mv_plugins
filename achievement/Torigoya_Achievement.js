@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2018/06/06 ru_shalm
+ * 2018/09/02 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -648,12 +648,14 @@
         var upstream_Scene_Title_createCommandWindow = Scene_Title.prototype.createCommandWindow;
         Scene_Title.prototype.createCommandWindow = function () {
             upstream_Scene_Title_createCommandWindow.apply(this);
-            this._commandWindow.setHandler('achievement', function () {
-                this._commandWindow.close();
-                SceneManager.push(Scene_Achievement);
-            }.bind(this));
+            this._commandWindow.setHandler('achievement', this.torigoyaAchievement_commandAchievement.bind(this));
         };
     }
+
+    Scene_Title.prototype.torigoyaAchievement_commandAchievement = function() {
+        this._commandWindow.close();
+        SceneManager.push(Scene_Achievement);
+    };
 
     // -------------------------------------------------------------------------
     // メニュー画面への追加
@@ -668,11 +670,13 @@
         var upstream_Scene_Menu_createCommandWindow = Scene_Menu.prototype.createCommandWindow;
         Scene_Menu.prototype.createCommandWindow = function () {
             upstream_Scene_Menu_createCommandWindow.apply(this);
-            this._commandWindow.setHandler('achievement', function () {
-                SceneManager.push(Scene_Achievement);
-            }.bind(this));
+            this._commandWindow.setHandler('achievement', this.torigoyaAchievement_commandAchievement.bind(this));
         };
     }
+
+    Scene_Menu.prototype.torigoyaAchievement_commandAchievement = function() {
+        SceneManager.push(Scene_Achievement);
+    };
 
     // -------------------------------------------------------------------------
     // プラグインコマンド
