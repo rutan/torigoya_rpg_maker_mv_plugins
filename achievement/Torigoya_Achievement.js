@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2018/09/02 ru_shalm
+ * 2018/09/09 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -386,6 +386,8 @@
 
         AchievementManager.prototype.clear = function () {
             this._achievements = [];
+
+            if (!Achievement.settings.useGlobalSave) return;
             StorageManager.save(Achievement.saveSlotID, JSON.stringify({
                 achievements: []
             }));
