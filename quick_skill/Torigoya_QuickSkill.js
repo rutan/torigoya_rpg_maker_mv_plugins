@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2018/07/01 ru_shalm
+ * 2018/12/29 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -57,7 +57,14 @@
         currentActionActor: null,
         originalSubject: null,
         actorIndexForForcedAction: null,
-        backupActions: null
+        backupActions: null,
+
+        // 競合回避用フラグ
+        conflictData: {
+            // 連携発動スキル / yanaさま
+            // https://www6.atwiki.jp/pokotan/pages/3.html
+            currentChainAction: null
+        }
     };
     QuickSkill.settings = (function () {
         var parameters = PluginManager.parameters(QuickSkill.name);
@@ -93,7 +100,9 @@
 
     // ターン消費なしスキル中はActionを減らさないようにしないと死ぬ
     Game_Battler.prototype.removeCurrentAction = function () {
-        if (QuickSkill.currentActionActor) {
+        if (QuickSkill.conflictData.currentChainAction) {
+            this._actions.shift();
+        } else if (QuickSkill.currentActionActor) {
             this._actions[0] = new Game_Action(this);
             this._actions.sort(function (a, _) {
                 return a._item.isNull() ? 1 : 0;
@@ -157,18 +166,24 @@
     // ターン消費なしスキル中なら後片付け
     var upstream_BattleManager_endAction = BattleManager.endAction;
     BattleManager.endAction = function () {
+        QuickSkill.conflictData.currentChainAction = this._subject.currentChainAction && this._subject.currentChainAction();
+
         upstream_BattleManager_endAction.apply(this);
 
         // 後始末
         if (QuickSkill.currentActionActor) {
-            this._phase = 'torigoya_quickSkill';
-            this._subject = QuickSkill.originalSubject;
-            if (this.actor() && this.actor().canInput()) {
-                this.changeActor(this._actorIndex, 'undecided');
+            if (QuickSkill.conflictData.currentChainAction) {
+                QuickSkill.conflictData.currentChainAction = null;
             } else {
-                this.selectNextCommand();
+                this._phase = 'torigoya_quickSkill';
+                this._subject = QuickSkill.originalSubject;
+                if (this.actor() && this.actor().canInput()) {
+                    this.changeActor(this._actorIndex, 'undecided');
+                } else {
+                    this.selectNextCommand();
+                }
+                QuickSkill.currentActionActor = null;
             }
-            QuickSkill.currentActionActor = null;
         }
     };
 
