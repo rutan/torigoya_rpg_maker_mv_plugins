@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_SaveCommand.js
  *---------------------------------------------------------------------------*
- * 2018/01/03 ru_shalm
+ * 2019/01/26 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -187,16 +187,22 @@
 
     /**
      * セーブ処理
-     * @param {Game_Interpreter} _
+     * @param {Game_Interpreter} gameInterpreter
      * @param {number} slotId
      * @param {boolean} skipTimestamp
      */
-    SaveCommand.runCommandSave = function (_, slotId, skipTimestamp) {
+    SaveCommand.runCommandSave = function (gameInterpreter, slotId, skipTimestamp) {
         if (skipTimestamp) {
             var info = DataManager.loadSavefileInfo(slotId);
             SaveCommand.lastTimestamp = info && info.timestamp ? info.timestamp : 0;
             SaveCommand.lastAccessId = DataManager.lastAccessedSavefileId();
         }
+
+        // そのままセーブしてしまうと
+        // ロード時にもプラグインコマンドが呼び出されてしまうため
+        // 次の行のイベントコマンドから始まるように細工する
+        var originalIndex = gameInterpreter._index;
+        gameInterpreter._index++;
 
         $gameSystem.onBeforeSave();
         if (DataManager.saveGame(slotId) && StorageManager.cleanBackup) {
@@ -208,6 +214,9 @@
             SaveCommand.lastTimestamp = undefined;
             SaveCommand.lastAccessId = undefined;
         }
+
+        // 細工した分を戻す
+        gameInterpreter._index = originalIndex;
     };
 
     /**
