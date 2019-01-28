@@ -26,6 +26,11 @@
  * @decimals 2
  * @default 0.35
  *
+ * @param Ignore Escape Characters
+ * @desc ルビを振りたい単語やふりがなに含まれる制御文字を無視します
+ * @type boolean
+ * @default false
+ *
  * @param ■ 上級者向け設定
  *
  * @param Dictionaries
@@ -96,6 +101,7 @@
         return {
             mainTextScale: Number(parameters['Main Text Scale'] || 0.95),
             subTextScale: Number(parameters['Sub Text Scale'] || 0.4),
+            ignoreEscapeCharacters: String(parameters['Ignore Escape Characters'] || 'false') === 'true',
             dictionaries: (function () {
                 var obj = {};
                 JSON.parse(parameters['Dictionaries'] || '[]').forEach(function (str) {
@@ -111,6 +117,16 @@
     // Constant
 
     TextRuby.commandDictionaries = {};
+    TextRuby.strictParsePhaseMain = 0;
+    TextRuby.strictParsePhaseSub = 1;
+    TextRuby.strictParsePhaseEnd = 2;
+    TextRuby.delimiter = [];
+    TextRuby.delimiter[TextRuby.strictParsePhaseMain] = {
+        start: '\[', end: '\]'
+    };
+    TextRuby.delimiter[TextRuby.strictParsePhaseSub] = {
+        start: '\(', end: '\)'
+    };
 
     // -------------------------------------------------------------------------
     // TextRuby
@@ -120,6 +136,56 @@
         if (!arr) return null;
         textState.index += arr[0].length;
         return arr.slice(1);
+    };
+
+
+    TextRuby.strictParseRubyParams = function (textState) {
+        var text = textState.text.slice(textState.index);
+        if (text[0] !== TextRuby.delimiter[TextRuby.strictParsePhaseMain].start) {
+            return null;
+        }
+
+        var nest = 0;
+        var result = ['', ''];
+        var phase = TextRuby.strictParsePhaseMain;
+        var subTextExists = /^\[.+\]\(.+\)/.test(text);
+        var parseTextState = { index: 0, text: text };
+        for (; parseTextState.index < parseTextState.text.length; parseTextState.index++) {
+            switch (phase) {
+                case TextRuby.strictParsePhaseMain:
+                case TextRuby.strictParsePhaseSub:
+                    switch (text[parseTextState.index]) {
+                        case TextRuby.delimiter[phase].start:
+                            nest++;
+                            break;
+                        case TextRuby.delimiter[phase].end:
+                            nest--;
+                            if (nest === 0) {
+                                phase = subTextExists ? phase + 1 : TextRuby.strictParsePhaseEnd;
+                            }
+                            break;
+                        case '\x1b':
+                            Window_Base.prototype.obtainEscapeCode.call(null, parseTextState);
+                            Window_Base.prototype.obtainEscapeParam.call(null, parseTextState);
+                            parseTextState.index--;
+                            break;
+                        case '\n':
+                        case '\f':
+                            break;
+                        default:
+                            if (nest === 1) {
+                                result[phase] += text[parseTextState.index];
+                            }
+                            break;
+                    }
+                    break;
+                case TextRuby.strictParsePhaseEnd:
+                    textState.index += parseTextState.index;
+                    return result;
+            }
+        }
+        textState.index += parseTextState.index;
+        return result;
     };
 
     TextRuby.processDrawRuby = function (mainText, subText, textState) {
@@ -154,7 +220,7 @@
     Window_Base.prototype.processEscapeCharacter = function (code, textState) {
         upstream_Window_Base_processEscapeCharacter.apply(this, arguments);
         if (code !== 'RUBY') return;
-        var params = TextRuby.obtainRubyParams(textState);
+        var params = (TextRuby.settings.ignoreEscapeCharacters) ? TextRuby.strictParseRubyParams(textState) : TextRuby.obtainRubyParams(textState);
         if (!params) return;
         params[1] = params[1] || TextRuby.commandDictionaries[params[0]] || TextRuby.settings.dictionaries[params[0]];
         TextRuby.processDrawRuby.call(this, params[0], params[1], textState);
