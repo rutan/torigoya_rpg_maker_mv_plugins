@@ -1,13 +1,18 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_AutoItems.js
  *---------------------------------------------------------------------------*
- * 2018/05/12 ru_shalm
+ * 2019/02/03 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
 /*:
  * @plugindesc Automatic use items or skills when damaged by enemy.
  * @author ru_shalm
+ *
+ * @param Enable Switch ID
+ * @desc Switch ID that enables this plugin (None: Always)
+ * @type switch
+ * @default 0
  *
  * @help
  * Automatic use items or skills when damaged by enemy.
@@ -28,6 +33,11 @@
 /*:ja
  * @plugindesc ダメージ時自動アイテム/スキル使用さん
  * @author ru_shalm
+ *
+ * @param Enable Switch ID
+ * @desc このプラグインを有効にするスイッチ (なし: 常に有効)
+ * @type switch
+ * @default 0
  *
  * @help
  * 戦闘中に攻撃を受けた際、自動的に発動するスキル/アイテムを設定できます。
@@ -65,6 +75,12 @@
     var AutoItems = {
         name: 'Torigoya_AutoItems'
     };
+    AutoItems.settings = (function () {
+        var parameters = PluginManager.parameters(AutoItems.name);
+        return {
+            enableSwitchID: Number(parameters['Enable Switch ID'] || 0)
+        };
+    })();
 
     // -------------------------------------------------------------------------
     // AutoItems_Manager
@@ -654,12 +670,20 @@
 
         if (AutoItems.manager.phase === 'play') {
             var actionSet = AutoItems.manager.pickActionableRuleSet();
-            if (actionSet) {
+            if (AutoItems.isEnabled() && actionSet) {
                 AutoItems.manager.insertInterruptAction(actionSet);
             } else {
                 AutoItems.manager.reset();
             }
         }
+    };
+
+    /**
+     * オートアイテムが有効であるか？
+     * @returns {boolean}
+     */
+    AutoItems.isEnabled = function () {
+        return AutoItems.settings.enableSwitchID === 0 || $gameSwitches.value(AutoItems.settings.enableSwitchID);
     };
 
     // -------------------------------------------------------------------------
@@ -753,8 +777,8 @@
     };
 
     // BattleManager.invokeActionのタイミングだと、かばうでtargetが変わる可能性があるので×
-    var upstream_Window_BattleLog_displayActionResults= Window_BattleLog.prototype.displayActionResults;
-    Window_BattleLog.prototype.displayActionResults = function(subject, target) {
+    var upstream_Window_BattleLog_displayActionResults = Window_BattleLog.prototype.displayActionResults;
+    Window_BattleLog.prototype.displayActionResults = function (subject, target) {
         upstream_Window_BattleLog_displayActionResults.apply(this, arguments);
         AutoItems.recordAction(subject, target);
     };
