@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2018/12/29 ru_shalm
+ * 2019/02/03 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -133,6 +133,14 @@
         for (var i = this._actions.length; i < actionTimes; i++) {
             this._actions.push(new Game_Action(this));
         }
+    };
+
+    // 行動選択後のバックを防止する
+    var upstream_Game_Battler_performActionEnd = Game_Battler.prototype.performActionEnd;
+    Game_Battler.prototype.performActionEnd = function() {
+        var isInputting = this._actionState === 'inputting';
+        upstream_Game_Battler_performActionEnd.apply(this);
+        if (isInputting) this.setActionState('inputting');
     };
 
     // -------------------------------------------------------------------------
