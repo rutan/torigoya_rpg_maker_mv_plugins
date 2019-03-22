@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_AutoItems.js
  *---------------------------------------------------------------------------*
- * 2019/02/03 ru_shalm
+ * 2019/03/23 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -124,6 +124,10 @@
         this._movedBattlers = [];
         this._applyedBattlers = [];
         this._nowPlayingActionSet = null;
+        if (this._currentForcedTurnFlag !== undefined) {
+            BattleManager._turnForced = this._currentForcedTurnFlag;
+            delete this._currentForcedTurnFlag;
+        }
     };
 
     /**
@@ -131,6 +135,7 @@
      * @param {AutoItems_ActionSet} actionSet
      */
     AutoItems_Manager.prototype.insertInterruptAction = function (actionSet) {
+        this._currentForcedTurnFlag = BattleManager.isForcedTurn();
         this._nowPlayingActionSet = actionSet;
         actionSet.subject.torigoya_autoItemsInterruptAction(actionSet.item, actionSet.target);
         BattleManager.torigoya_autoItemsInterruptAction(actionSet.subject);
