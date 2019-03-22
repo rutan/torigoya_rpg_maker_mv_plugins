@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2019/02/03 ru_shalm
+ * 2019/03/23 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -186,7 +186,7 @@
                 this._phase = 'torigoya_quickSkill';
                 this._subject = QuickSkill.originalSubject;
                 if (this.actor() && this.actor().canInput()) {
-                    this.changeActor(this._actorIndex, 'undecided');
+                    this.changeActor(this._actorIndex, 'inputting');
                 } else {
                     this.selectNextCommand();
                 }
