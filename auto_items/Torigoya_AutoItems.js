@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_AutoItems.js
  *---------------------------------------------------------------------------*
- * 2019/03/23 ru_shalm
+ * 2019/05/12 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -184,7 +184,7 @@
             if (a.rule.type !== b.rule.type) return a.rule.type - b.rule.type;
 
             // 発動条件優先度
-            var aValue, bValue;
+            var aValue = 0, bValue = 0;
             switch (a.rule.conditionType) {
                 // ステート優先度
                 case AutoItems_Rule.conditionTypes.state:
@@ -372,7 +372,8 @@
         state: 0,
         hp: 1,
         mp: 2,
-        tp: 3
+        tp: 3,
+        onEvaded: 11
     };
 
     Object.defineProperties(AutoItems_Rule.prototype, {
@@ -472,6 +473,8 @@
                 return this._isApplicableTP(target, actionResult);
             case AutoItems_Rule.conditionTypes.state:
                 return this._isApplicableState(target, actionResult);
+            case AutoItems_Rule.conditionTypes.onEvaded:
+                return this._isApplicableOnEvaded(target, actionResult);
             default:
                 return false;
         }
@@ -537,6 +540,17 @@
     };
 
     /**
+     * [onEvaded] ルールが適用可能であるか？
+     * @param {Game_BattlerBase} _target         被弾対象
+     * @param {Game_ActionResult} actionResult  行動結果の情報
+     * @returns {boolean}
+     * @private
+     */
+    AutoItems_Rule.prototype._isApplicableOnEvaded = function (_target, actionResult) {
+        return actionResult.evaded || actionResult.missed;
+    };
+
+    /**
      * 戦闘不能を理由に発動するルールであるか？
      * @returns {boolean}
      */
@@ -568,7 +582,7 @@
         }
     };
 
-    AutoItems_Rule.metaRegexp = /^(AutoItem|AutoSkill)(Me|Friend)\/(hp|mp|tp|state)\[(\d+%?)\]$/;
+    AutoItems_Rule.metaRegexp = /^(AutoItem|AutoSkill)(Me|Friend)\/(hp|mp|tp|state|onEvaded)\[(\d+%?)\]$/;
     AutoItems_Rule.likeCSVRegexp = new RegExp('\\s*,\\s*');
     AutoItems.AutoItems_Rule = AutoItems_Rule;
 
