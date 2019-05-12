@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2018/03/24 ru_shalm
+ * 2019/05/12 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -282,6 +282,17 @@
     var choiceAliveMember = function () {
         var members = $gameParty.battleMembers().filter(function (actor) {
             return actor.isAlive() && actor.canMove();
+        });
+        return members.length > 0 ? members[Math.randomInt(members.length)] : null;
+    };
+
+    /**
+     * 生存 && 行動可能エネミーからランダムに1人選択
+     * @returns {*}
+     */
+    var choiceAliveEnemy = function () {
+        var members = $gameTroop.members().filter(function (enemy) {
+            return enemy.isAlive() && enemy.canMove();
         });
         return members.length > 0 ? members[Math.randomInt(members.length)] : null;
     };
@@ -830,6 +841,19 @@
             }
         }
         upstream_BattleManager_processVictory.apply(this);
+    };
+
+    // 戦闘敗北
+    var upstream_BattleManager_processDefeat = BattleManager.processDefeat;
+    BattleManager.processDefeat = function() {
+        if (!isBattleFinished) {
+            isBattleFinished = true;
+            var enemy = choiceAliveEnemy();
+            if (enemy) {
+                enemy.torigoya_setSpeech(enemy.torigoya_pickSpeech('Victory', $gameTroop._troopId));
+            }
+        }
+        upstream_BattleManager_processDefeat.apply(this);
     };
 
     if (conflictPlugins.TMBattleCommandEx_omitPartyCommand) {
