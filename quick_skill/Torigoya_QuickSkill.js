@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2019/03/23 ru_shalm
+ * 2019/06/26 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -235,6 +235,19 @@
         }
         return upstream_BattleManager_updateEvent.apply(this);
     };
+
+    // -------------------------------------------------------------------------
+    // 競合対策
+
+    // NumbState.js
+    // ターン消費なしスキルによる行動時には行動不能判定をしないようにする
+    if (Game_BattlerBase.prototype.numb_occur) {
+        var upstream_Game_BattlerBase_numb_occur = Game_BattlerBase.prototype.numb_occur;
+        Game_BattlerBase.prototype.numb_occur = function() {
+            if (QuickSkill.currentActionActor) return false;
+            return upstream_Game_BattlerBase_numb_occur.apply(this);
+        };
+    }
 
     // -------------------------------------------------------------------------
     global.Torigoya = (global.Torigoya || {});
