@@ -157,9 +157,9 @@
             window.RPGAtsumaru.experimental.nicoad.getHistories()
                 .then(function (resp) {
                     var newItems = resp.histories.reduce(function (ret, item) {
-                        if (item.startedAt > lastStartedTime) {
+                        if (item.startedAt > self.lastStartedTime) {
                             var obj = findByArray(ret, function (n) {
-                                return n.name === item.name;
+                                return n.advertiserName === item.advertiserName;
                             });
                             if (obj) {
                                 obj.adPoint += item.adPoint;
