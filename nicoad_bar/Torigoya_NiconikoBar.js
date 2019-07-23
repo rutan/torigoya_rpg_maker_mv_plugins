@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_NiconikoBar.js
  *---------------------------------------------------------------------------*
- * 2019/07/23 ru_shalm
+ * 2019/07/24 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -226,7 +226,7 @@
             element.style.position = 'absolute';
             element.style.left = '0';
             element.style.width = '100%';
-            element.style.height = '40px';
+            element.style.height = '2em';
             element.style.overflow = 'hidden';
             element.style.background = Niconiko.settings.bgColor;
             element.style.color = Niconiko.settings.textColor;
@@ -240,9 +240,9 @@
             element.classList.add('nicoko-title');
             element.style.position = 'absolute';
             element.style.top = '0';
-            element.style.lineHeight = '40px';
+            element.style.lineHeight = (2 / 0.8) + 'em';
             element.style.padding = '0 10px';
-            element.style.fontSize = '16px';
+            element.style.fontSize = '0.8em';
             element.style.fontWeight = 'bold';
             element.style.transition = 'all ease-in-out .5s 1s';
             element.innerText = Niconiko.settings.title;
@@ -254,7 +254,7 @@
             element.style.position = 'absolute';
             element.style.top = '0';
             element.style.right = '0';
-            element.style.height = '40px';
+            element.style.height = '2em';
             element.style.overflow = 'hidden';
             return element;
         },
@@ -264,8 +264,8 @@
             element.style.whiteSpace = 'pre';
             element.style.position = 'absolute';
             element.style.top = '0';
-            element.style.lineHeight = '40px';
-            element.style.fontSize = '16px';
+            element.style.lineHeight = (2 / 0.8) + 'em';
+            element.style.fontSize = '0.8em';
             element.style.padding = '0 10px';
             element.addEventListener('transitionend', this.onTextTransitionEnd.bind(this));
             return element;
@@ -273,6 +273,8 @@
         updateElement: function () {
             this.element.width = Graphics._width;
             this.element.height = Graphics._height;
+            var size = Math.min(Math.max(Math.floor(20 * Graphics._realScale), 10), 20);
+            this.element.style.fontSize = size + 'px';
             Graphics._centerElement(this.element);
         },
         showMessage: function (message) {
@@ -291,7 +293,7 @@
             this.messageTextElement.innerText = message;
             this.messageTextElement.style.left = '0';
             this.messageTextElement.style.transform = 'translateX(-100%)';
-            this.messageTextElement.style.transition = 'all linear ' + Niconiko.settings.scrollTime + 's 2s';
+            this.messageTextElement.style.transition = 'left linear ' + Niconiko.settings.scrollTime + 's 2s, transform linear ' + Niconiko.settings.scrollTime + 's 2s';
         },
         showHistories: function (histories) {
             if (histories.length === 0) return;
@@ -309,7 +311,7 @@
             this.resetStyle();
         },
         resetStyle: function () {
-            this.barElement.style.bottom = '-40px';
+            this.barElement.style.bottom = '-2em';
             this.barElement.style.opacity = '0';
 
             this.titleElement.style.left = '50%';
