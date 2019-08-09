@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Tween.js
  *---------------------------------------------------------------------------*
- * 2018/07/29 ru_shalm
+ * 2019/08/09 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -85,6 +85,7 @@
         this._stack.length = 0;
         this._timer = this._duration + 1;
         this._callback = null;
+        this._aborted = true;
         return this;
     };
 
@@ -94,6 +95,7 @@
         this._callback = null;
         this._duration = 0;
         this._timer = 0;
+        this._aborted = false;
     };
 
     Animator.prototype.__init = function () {
@@ -122,6 +124,8 @@
     };
 
     Animator.prototype.__update = function () {
+      if (this._aborted) return false;
+
         this._timer++;
         if (this._timer < this._duration) {
             var n = this._easingFunc(this._timer / this._duration);
