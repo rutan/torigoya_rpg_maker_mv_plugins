@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_QuickSkill.js
  *---------------------------------------------------------------------------*
- * 2019/06/26 ru_shalm
+ * 2019/08/24 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -75,6 +75,15 @@
 
     // -------------------------------------------------------------------------
     // Utils
+
+    QuickSkill.reset = function () {
+        this.currentActionActor = null;
+        this.originalSubject = null;
+        this.actorIndexForForcedAction = null;
+        this.backupActions = null;
+
+        this.conflictData.currentChainAction = null;
+    };
 
     QuickSkill.isBattleEnd = function () {
         return $gameParty.isEmpty() || $gameParty.isAllDead() || $gameTroop.isAllDead();
@@ -170,6 +179,13 @@
 
     // -------------------------------------------------------------------------
     // BattleManager
+
+    // 戦闘開始前に初期化処理を行う
+    var upstream_BattleManager_setup = BattleManager.setup;
+    BattleManager.setup = function (troopId, canEscape, canLose) {
+        QuickSkill.reset();
+        upstream_BattleManager_setup.apply(this, arguments);
+    };
 
     // ターン消費なしスキル中なら後片付け
     var upstream_BattleManager_endAction = BattleManager.endAction;
