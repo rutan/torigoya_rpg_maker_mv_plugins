@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_EnemyShadow.js
  *---------------------------------------------------------------------------*
- * 2018/12/29 ru_shalm
+ * 2019/08/24 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -85,7 +85,7 @@
 
     EnemyShadow.refreshShadowSprite = function() {
         if (this.bitmap.isReady()) {
-            EnemyShadow.resizeShadowSprite.appy(this);
+            EnemyShadow.resizeShadowSprite.apply(this);
         } else {
             this.bitmap.addLoadListener(EnemyShadow.resizeShadowSprite.bind(this));
         }
