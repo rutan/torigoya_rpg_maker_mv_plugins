@@ -733,6 +733,12 @@
     // -------------------------------------------------------------------------
     // 起動時初期化処理
 
+    var upstream_loadSystemWindowImage = Scene_Boot.prototype.loadSystemWindowImage;
+    Scene_Boot.prototype.loadSystemWindowImage = function() {
+        upstream_loadSystemWindowImage.apply(this);
+        ImageManager.reserveSystem(Achievement.settings.popupWindowImage);
+    };
+
     var upstream_Scene_Boot_start = Scene_Boot.prototype.start;
     Scene_Boot.prototype.start = function () {
         AchievementManager.init();
