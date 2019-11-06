@@ -787,7 +787,7 @@
                 var achievementID = ~~Number(args[0]);
                 AchievementManager.unlock(achievementID);
                 return;
-            case 'RemoveAchievement'
+            case 'RemoveAchievement':
             case '実績消去':
                 var achievementID = ~~Number(args[0]);
                 AchievementManager.remove(achievementID);
