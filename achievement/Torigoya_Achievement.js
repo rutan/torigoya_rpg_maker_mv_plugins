@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2019/11/06 ru_shalm
+ * 2019/11/07 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -139,6 +139,14 @@
  * ON: する　OFF: しない　（default: ON）
  * @default ON
  *
+ * @param Overridable
+ * @type select
+ * @option ON
+ * @option OFF
+ * @desc 同じ実績を何度でも取得できるようにします
+ * ON: する　OFF: しない　（default: OFF）
+ * @default OFF
+ *
  * @help
  * 実績・トロフィー的なシステムを定義します。
  * 実績の項目はコモンイベントに記述することで追加できます。
@@ -183,7 +191,8 @@
             useTitle: String(parameters['Use Title'] || 'ON') === 'ON',
             useMenu: String(parameters['Use Menu'] || 'ON') === 'ON',
             menuText: String(parameters['Menu Text'] || '実績'),
-            useGlobalSave: String(parameters['Use Global Save'] || 'ON') === 'ON'
+            useGlobalSave: String(parameters['Use Global Save'] || 'ON') === 'ON',
+            overridable: String(parameters['Overridable'] || 'OFF') === 'ON'
         };
     })();
 
@@ -340,8 +349,8 @@
         };
 
         AchievementManager.prototype.unlock = function (id) {
-            if (this._achievements[id]) return;
             if (!this.data(id)) return;
+            if (!Achievement.settings.overridable && this._achievements[id]) return;
             this._achievements[id] = Date.now();
             this.save();
             this.notify(id);
@@ -789,6 +798,7 @@
                 return;
             case 'RemoveAchievement':
             case '実績消去':
+            case '実績削除':
                 var achievementID = ~~Number(args[0]);
                 AchievementManager.remove(achievementID);
                 return;
