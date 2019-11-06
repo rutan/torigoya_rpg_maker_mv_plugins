@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2018/09/09 ru_shalm
+ * 2019/11/06 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -345,6 +345,12 @@
             this._achievements[id] = Date.now();
             this.save();
             this.notify(id);
+        };
+
+        AchievementManager.prototype.remove = function (id) {
+            if (!this._achievements[id]) return;
+            this._achievements[id] = undefined;
+            this.save();
         };
 
         AchievementManager.prototype.on = function (callback) {
@@ -780,6 +786,11 @@
             case '実績':
                 var achievementID = ~~Number(args[0]);
                 AchievementManager.unlock(achievementID);
+                return;
+            case 'RemoveAchievement'
+            case '実績消去':
+                var achievementID = ~~Number(args[0]);
+                AchievementManager.remove(achievementID);
                 return;
             case 'ShowAchievement':
             case '実績表示':
