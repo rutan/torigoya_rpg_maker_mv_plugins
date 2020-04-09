@@ -79,6 +79,26 @@
  *
  *     ふりがなリセット
  *
+ * ------------------------------------------------------------
+ * ■その他のプラグインコマンド
+ *
+ * 以下のプラグインコマンドで、
+ * ルビを振りたい単語とふりがなの色を変更できます。
+ * XにはRPGツクールMVの色番号を入力してください。
+ *
+ *     ふりがな色 X
+ *
+ * ルビを振りたい単語のみ色を変えたい場合は以下のコマンドを、
+ *
+ *     ふりがな色メイン X
+ *
+ * ふりがなのみ色を変えたい場合は以下のコマンドを利用してください。
+ *
+ *     ふりがな色サブ X
+ *
+ * つけた色をリセットしたい場合は以下のコマンドを利用してください。
+ *
+ *     ふりがな色リセット
  */
 
 /*~struct~Dictionary:
@@ -114,6 +134,21 @@
     })();
 
     // -------------------------------------------------------------------------
+    // TextColorDetector
+
+    function Window_TextColorDetector() {
+        this.initialize.apply(this, arguments);
+    }
+
+    Window_TextColorDetector.prototype = Object.create(Window_Base.prototype);
+    Window_TextColorDetector.prototype.constructor = Window_TextColorDetector;
+
+    Window_TextColorDetector.prototype.initialize = function ()  {
+        Window.prototype.initialize.call(this);
+        this.loadWindowskin();
+    };
+
+    // -------------------------------------------------------------------------
     // Constant
 
     TextRuby.commandDictionaries = {};
@@ -127,6 +162,9 @@
     TextRuby.delimiter[TextRuby.strictParsePhaseSub] = {
         start: '\(', end: '\)'
     };
+    TextRuby.textColorDetector = new Window_TextColorDetector();
+    TextRuby.mainTextColor = null;
+    TextRuby.subTextColor = null;
 
     // -------------------------------------------------------------------------
     // TextRuby
@@ -190,6 +228,7 @@
 
     TextRuby.processDrawRuby = function (mainText, subText, textState) {
         var originalFontSize = this.contents.fontSize;
+        var originalTextColor = this.contents.textColor;
 
         var mainFontSize = originalFontSize * TextRuby.settings.mainTextScale;
         var mainY = textState.y + (textState.height - originalFontSize) / 2 + (originalFontSize - mainFontSize);
@@ -203,14 +242,30 @@
         var subWidth = this.textWidth(subText);
         var w = Math.max(mainWidth, subWidth);
 
+        this.contents.textColor = TextRuby.mainTextColor === null ? originalTextColor : TextRuby.mainTextColor;
         this.contents.fontSize = mainFontSize;
         this.contents.drawText(mainText, textState.x, mainY, w, mainFontSize, 'center');
 
+        this.contents.textColor = TextRuby.subTextColor === null ? originalTextColor : TextRuby.subTextColor;
         this.contents.fontSize = subFontSize;
         this.contents.drawText(subText, textState.x, subY, w, this.contents.fontSize, 'center');
 
         textState.x += w;
         this.contents.fontSize = originalFontSize;
+        this.contents.textColor = originalTextColor;
+    };
+
+    TextRuby.setMainTextColor = function (colorNumber) {
+        this.mainTextColor = this.textColorDetector.textColor(colorNumber);
+    };
+
+    TextRuby.setSubTextColor = function (colorNumber) {
+        this.subTextColor = this.textColorDetector.textColor(colorNumber);
+    };
+
+    TextRuby.resetTextColor = function () {
+        this.mainTextColor = null;
+        this.subTextColor = null;
     };
 
     // -------------------------------------------------------------------------
@@ -238,6 +293,26 @@
             }
             case 'ふりがなリセット': {
                 TextRuby.commandDictionaries = {};
+                return;
+            }
+            case 'ふりがな色': {
+                var color = Number(args[0] || 0);
+                TextRuby.setMainTextColor(color);
+                TextRuby.setSubTextColor(color);
+                return;
+            }
+            case 'ふりがな色メイン': {
+                var color = Number(args[0] || 0);
+                TextRuby.setMainTextColor(color);
+                return;
+            }
+            case 'ふりがな色サブ': {
+                var color = Number(args[0] || 0);
+                TextRuby.setSubTextColor(color);
+                return;
+            }
+            case 'ふりがな色リセット': {
+                TextRuby.resetTextColor();
                 return;
             }
         }
