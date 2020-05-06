@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2019/11/07 ru_shalm
+ * 2020/05/06 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -39,12 +39,10 @@
  * left: 左上  right: 右上
  * @default left
  *
- * @param Popup Width
- * @type number
- * @min 200
- * @desc ポップアップ表示の横幅(px)
- * 最低200以上で設定してください
- * @default 250
+ * @param Popup Message
+ * @type string
+ * @desc 獲得時に表示するメッセージ
+ * @default 実績を獲得しました
  *
  * @param Popup Wait
  * @type number
@@ -54,10 +52,30 @@
  * （フェードイン/アウトの時間は含みません）
  * @default 0.75
  *
- * @param Popup Message
- * @type string
- * @desc 獲得時に表示するメッセージ
- * @default 実績を獲得しました
+ * @param Popup Width
+ * @type number
+ * @min 200
+ * @desc ポップアップ表示の横幅(px)
+ * 最低200以上で設定してください
+ * @default 250
+ *
+ * @param Popup Padding
+ * @type number
+ * @min 10
+ * @desc ポップアップ表示の余白
+ * @default 10
+ *
+ * @param Popup TitleFontSize
+ * @type number
+ * @min 16
+ * @desc 獲得した実績名の文字サイズ
+ * @default 16
+ *
+ * @param Popup MessageFontSize
+ * @type number
+ * @min 16
+ * @desc 獲得時に表示するメッセージの文字サイズ
+ * @default 12
  *
  * @param Popup Sound
  * @desc 獲得時に再生する効果音(SE)の名前
@@ -179,7 +197,10 @@
             usePopup: String(parameters['Use Popup'] || 'ON') === 'ON',
             popupPosition: String(parameters['Popup Position'] || 'left'),
             popupWidth: Number(parameters['Popup Width'] || 250),
+            popupTitleFontSize: Number(parameters['Popup TitleFontSize'] || 16),
+            popupMessageFontSize: Number(parameters['Popup MessageFontSize'] || 12),
             popupMessage: String(parameters['Popup Message'] || '実績を獲得しました'),
+            popupPadding: Number(parameters['Popup Padding'] || 10),
             popupSound: String(parameters['Popup Sound'] || ''),
             popupWait: Number(parameters['Popup Wait'] || 0.75),
             popupWindowImage: String(parameters['Popup Window Image'] || 'Window'),
@@ -541,7 +562,7 @@
     Window_AchievementPopup.prototype.constructor = Window_AchievementPopup;
 
     Window_AchievementPopup.prototype.initialize = function (item) {
-        Window_Base.prototype.initialize.call(this, 0, 0, this.windowWidth(), 50);
+        Window_Base.prototype.initialize.call(this, 0, 0, this.windowWidth(), this.windowHeight());
         this.item = item;
         this.refresh();
     };
@@ -550,34 +571,48 @@
         return Achievement.settings.popupWidth;
     };
 
+    Window_AchievementPopup.prototype.windowHeight = function () {
+        return this.standardFontSize() + this.messageFontSize() + this.standardPadding() * 2 + 5; // FIXME
+    };
+
     Window_AchievementPopup.prototype.standardFontSize = function () {
-        return 16;
+        return Achievement.settings.popupTitleFontSize;
+    };
+
+    Window_AchievementPopup.prototype.messageFontSize = function () {
+        return Achievement.settings.popupMessageFontSize;
     };
 
     Window_AchievementPopup.prototype.lineHeight = function () {
-        return 20;
+        return this.standardFontSize();
     };
 
     Window_AchievementPopup.prototype.standardPadding = function () {
-        return 0;
+        return Achievement.settings.popupPadding;
     };
 
     Window_AchievementPopup.prototype.refresh = function () {
         this.contents.clear();
-        this.drawIcon(this.item.icon, 10, 10);
+        this.drawIcon(this.item.icon, 0, 0);
         this.drawTitle();
         this.drawMessage();
     };
 
     Window_AchievementPopup.prototype.drawTitle = function () {
-        this.drawTextEx('\\c[1]' + this.item.title, 50, 5);
+        this.resetFontSettings();
+        this.drawTextEx('\\c[1]' + this.item.title, 40, 0);
     };
 
     Window_AchievementPopup.prototype.drawMessage = function () {
-        var textWidth = this.windowWidth() - 60;
+        var textWidth = this.windowWidth() - this.standardPadding() * 2 - 40;
+        var y = this.standardFontSize() + 5;
         this.resetTextColor();
-        this.contents.fontSize = 12;
-        this.contents.drawText(Achievement.settings.popupMessage, 50, 29, textWidth, 12, 'left');
+        this.contents.fontSize = this.messageFontSize();
+        this.contents.drawText(Achievement.settings.popupMessage, 40, y, textWidth, this.messageFontSize(), 'left');
+    };
+
+    Window_AchievementPopup.prototype.calcTextHeight = function () {
+        return this.contents.fontSize;
     };
 
     Window_AchievementPopup.prototype.loadWindowskin = function () {
