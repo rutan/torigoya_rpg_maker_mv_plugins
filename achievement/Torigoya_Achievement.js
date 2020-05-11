@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2020/05/06 ru_shalm
+ * 2020/05/11 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -365,8 +365,27 @@
             this.load();
         };
 
+        AchievementManager.prototype.getUnlockedCount = function () {
+            var self = this;
+            return this._items.map(function (item) {
+                return item.id;
+            }).filter(function (id) {
+                return self.isUnlocked(id);
+            }).length;
+        };
+
         AchievementManager.prototype.isUnlocked = function (id) {
             return !!this._achievements[id];
+        };
+
+        AchievementManager.prototype.isAllUnlocked = function () {
+            var args = Array.prototype.slice.call(arguments);
+            var self = this;
+            return args.map(function (n) {
+                return parseInt(n, 10);
+            }).every(function (id) {
+                return self._achievements[id];
+            });
         };
 
         AchievementManager.prototype.unlock = function (id) {
@@ -769,7 +788,7 @@
     // 起動時初期化処理
 
     var upstream_loadSystemWindowImage = Scene_Boot.prototype.loadSystemWindowImage;
-    Scene_Boot.prototype.loadSystemWindowImage = function() {
+    Scene_Boot.prototype.loadSystemWindowImage = function () {
         upstream_loadSystemWindowImage.apply(this);
         ImageManager.reserveSystem(Achievement.settings.popupWindowImage);
     };
