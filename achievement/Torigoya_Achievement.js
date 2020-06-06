@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_Achievement.js
  *---------------------------------------------------------------------------*
- * 2020/05/11 ru_shalm
+ * 2020/06/06 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -427,12 +427,6 @@
 
         AchievementManager.prototype.save = function () {
             if (!Achievement.settings.useGlobalSave) return;
-
-            // [多重起動対応] 旧データとの差異があったら吸収する
-            var oldData = this._loadAchievements();
-            for (var i = 0; i < this._items.length; ++i) {
-                this._achievements[i] = (oldData[i] || this._achievements[i]);
-            }
 
             StorageManager.save(Achievement.saveSlotID, JSON.stringify({
                 achievements: this._achievements
