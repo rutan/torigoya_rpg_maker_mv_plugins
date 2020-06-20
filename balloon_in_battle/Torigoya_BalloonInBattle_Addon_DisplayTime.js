@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle_Addon_DisplayTime.js
  *---------------------------------------------------------------------------*
- * 2020/04/05 ru_shalm
+ * 2020/06/20 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -51,7 +51,7 @@
     BattleManager.startAction = function () {
         upstream_BattleManager_startAction.apply(this);
         var subject = this._subject;
-        subject.torigoya_delayClearSpeech(DisplayTime.settings.displayTime);
+        if (subject) subject.torigoya_delayClearSpeech(DisplayTime.settings.displayTime);
     };
 
     // -------------------------------------------------------------------------

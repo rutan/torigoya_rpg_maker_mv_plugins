@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_AddStateSkill.js
  *---------------------------------------------------------------------------*
- * 2017/07/21 ru_shalm
+ * 2020/06/20 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -36,6 +36,8 @@
     };
 
     AddStateSkill.addState = function () {
+        if (!this._action) return 0;
+
         var stateIds = this._action.item() ? this._action.item().meta['AddState'] : null;
         if (stateIds && this._subject.isAlive()) {
             stateIds.split(/\s*,\s*/).filter(Boolean).forEach(function (id) {
@@ -48,6 +50,8 @@
     };
 
     AddStateSkill.removeState = function () {
+        if (!this._action) return 0;
+
         var stateIds = this._action.item() ? this._action.item().meta['RemoveState'] : null;
         if (stateIds) {
             stateIds.split(/\s*,\s*/).filter(Boolean).forEach(function (id) {

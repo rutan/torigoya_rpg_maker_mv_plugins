@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_SkillChangeTo.js
  *---------------------------------------------------------------------------*
- * 2017/03/18 ru_shalm
+ * 2020/06/20 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -123,6 +123,7 @@
     SkillChangeTo.run = function () {
         var subject = this._subject;
         var action = subject.currentAction();
+        if (!action) return;
         var item = action.item();
         if (!item) return;
 

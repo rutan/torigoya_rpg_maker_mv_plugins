@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2019/05/12 ru_shalm
+ * 2020/06/20 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -619,16 +619,18 @@
         clearSpeechOfAllMember();
         upstream_BattleManager_startAction.apply(this);
         var subject = this._subject;
-        var action = subject.currentAction();
-        var item = action.item();
-        var speech = null;
+        if (subject) {
+            var action = subject.currentAction();
+            var item = action.item();
+            var speech = null;
 
-        if (action.isSkill()) {
-            speech = subject.torigoya_pickSpeech('Skill', item.id, item.name)
-        } else if (action.isItem()) {
-            speech = subject.torigoya_pickSpeech('Item', item.id, item.name)
+            if (action.isSkill()) {
+                speech = subject.torigoya_pickSpeech('Skill', item.id, item.name)
+            } else if (action.isItem()) {
+                speech = subject.torigoya_pickSpeech('Item', item.id, item.name)
+            }
+            subject.torigoya_setSpeech(speech);
         }
-        subject.torigoya_setSpeech(speech);
     };
 
     // 行動完了時（吹き出し削除）
