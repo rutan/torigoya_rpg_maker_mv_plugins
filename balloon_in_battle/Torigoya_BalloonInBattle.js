@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------*
  * Torigoya_BalloonInBattle.js
  *---------------------------------------------------------------------------*
- * 2020/06/20 ru_shalm
+ * 2020/07/25 ru_shalm
  * http://torigoya.hatenadiary.jp/
  *---------------------------------------------------------------------------*/
 
@@ -252,7 +252,8 @@
             if (!global.Imported || !global.Imported.TMBattleCommandEx) return false;
             var params = PluginManager.parameters('TMBattleCommandEx');
             return String(params['omitPartyCommand']) === '1';
-        })()
+        })(),
+        MOG_ConsecutiveBattles: (global.Imported && global.Imported.MOG_ConsecutiveBattles)
     };
 
     /**
@@ -594,9 +595,7 @@
         }
     })();
 
-    var upstream_Spriteset_Battle_createLowerLayer = Spriteset_Battle.prototype.createLowerLayer;
-    Spriteset_Battle.prototype.createLowerLayer = function () {
-        upstream_Spriteset_Battle_createLowerLayer.apply(this);
+    Spriteset_Battle.prototype.torigoya_attachBalloonWindow = function () {
         maybeOriginal_battlerSprites.apply(this).forEach((function (battlerSprite) {
             // 画面の色調変更の暫定対応
             // battleFieldにappendしてしまうと影響を受けてしまうが、
@@ -608,6 +607,20 @@
             }
         }).bind(this));
     };
+
+    var upstream_Spriteset_Battle_createLowerLayer = Spriteset_Battle.prototype.createLowerLayer;
+    Spriteset_Battle.prototype.createLowerLayer = function () {
+        upstream_Spriteset_Battle_createLowerLayer.apply(this);
+        this.torigoya_attachBalloonWindow();
+    };
+
+    if (conflictPlugins.MOG_ConsecutiveBattles) {
+        var upstream_Spriteset_Battle_prepareConBatSprites = Spriteset_Battle.prototype.prepareConBatSprites;
+        Spriteset_Battle.prototype.prepareConBatSprites = function() {
+            upstream_Spriteset_Battle_prepareConBatSprites.apply(this);
+            this.torigoya_attachBalloonWindow();
+        };
+    }
 
     // -------------------------------------------------------------------------
     // 吹き出し発生イベントの設定
